@@ -1,0 +1,22 @@
+{
+  "name": "nexus-defense",
+  "version": "1.0.0",
+  "description": "Nexus Defense Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardama/nexus-defense.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ardama/nexus-defense/issues"
+  },
+  "homepage": "https://github.com/ardama/nexus-defense#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
