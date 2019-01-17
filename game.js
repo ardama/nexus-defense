@@ -1,47 +1,28 @@
-var config = {
+var phaserConfig = {
     type: Phaser.AUTO,
+    parent: 'game',
     width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 200 }
-        }
-    },
+    height: 800,
     scene: {
+        key: 'main',
         preload: preload,
-        create: create
+        create: create,
+        update: update
     }
 };
 
-var game = new Phaser.Game(config);
+var game = new Phaser.Game(phaserConfig);
+var graphics;
+var path;
 
-function preload ()
-{
-    this.load.setBaseURL('http://labs.phaser.io');
-
-    this.load.image('sky', 'assets/skies/space3.png');
-    this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-    this.load.image('red', 'assets/particles/red.png');
+function preload() {
+  this.load.image('tower', '/assets/images/default/towerDefense_tile206.png');
 }
 
-function create ()
-{
-    this.add.image(400, 300, 'sky');
+function create() {
+    tower = this.add.sprite(32, 32, 'tower', 100);
+}
 
-    var particles = this.add.particles('red');
+function update() {
 
-    var emitter = particles.createEmitter({
-        speed: 100,
-        scale: { start: 1, end: 0 },
-        blendMode: 'ADD'
-    });
-
-    var logo = this.physics.add.image(400, 100, 'logo');
-
-    logo.setVelocity(100, 200);
-    logo.setBounce(1, 1);
-    logo.setCollideWorldBounds(true);
-
-    emitter.startFollow(logo);
 }
