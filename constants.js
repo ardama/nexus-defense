@@ -1,6 +1,6 @@
-var Constants = {
+const Constants = {
   Game: {
-    WaveTime: 1000 * 5,
+    WaveTime: 1000 * 1,
   },
 };
 

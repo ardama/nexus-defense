@@ -1,72 +1,84 @@
-var Constants = require('./constants.js');
-var { Wave } = require('./classes.js');
+import Constants from './constants.js';
+import { Wave } from './classes.js';
+import Phaser from './lib/phaser.min.js';
 
-var phaserConfig = {
-    type: Phaser.AUTO,
-    parent: 'game',
-    width: 800,
-    height: 800,
-    scene: {
-        key: 'main',
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
-
-var game = new Phaser.Game(phaserConfig);
-var graphics;
-var path;
-
-function preload() {
-  this.load.image('tower', '/assets/images/default/towerDefense_tile206.png');
+export const init = () => {
+  const game = new Game();
 }
 
-function create() {
-  tower = this.add.sprite(32, 32, 'tower', 100);
+class Game {
+  constructor() {
+    const self = this;
 
-  this.startTime = Date.now();
-  this.lastFrameTime = this.startTime;
+    const config = {
+        type: Phaser.AUTO,
+        parent: 'game',
+        width: 800,
+        height: 800,
+        scene: {
+            key: 'main',
+            preload: function() { self.preload(this); },
+            create: function() { self.create(this); },
+            update: function() { self.update(this); },
+        }
+    };
 
-  this.createAllies();
-  this.createEnemies();
-}
-
-function update() {
-  this.frameTime = Date.now();
-  this.frameDuration = this.frameTime - this.lastFrameTime;
-
-  this.updateAllies();
-  this.updateEnemies();
-
-
-
-  this.lastFrameTime = this.frameTime;
-}
-
-
-function createAllies() {
-  return null;
-}
-
-function createEnemies() {
-  this.waves = [];
-  this.nextWaveTime = Constants.Game.WaveTime;
-}
-
-function updateAllies() {
-  return null;
-}
-
-function updateEnemies() {
-  this.nextWaveTime -= this.frameDuration;
-  console.log(this.nextWaveTime);
-
-  if (this.nextWaveTime <= 0) {
-    this.createWave();
+    this.game = new Phaser.Game(config);
   }
-}
 
-function createWave() {
-  var wave = new Wave();
+  preload = (phaser) => {
+    this.phaser = phaser;
+    this.graphics = phaser.add.graphics({ lineStyle: { width: 2, color: 0x00ff00 }, fillStyle: { color: 0xff00ff } });
+    this.phaser.load.image('tower', '/assets/images/default/towerDefense_tile206.png');
+  }
+
+  create = () => {
+    const tower = this.phaser.add.sprite(32, 32, 'tower', 100);
+
+    this.startTime = Date.now();
+    this.lastFrameTime = this.startTime;
+
+    this.createAllies();
+    this.createEnemies();
+  }
+
+  update = () => {
+    this.graphics.clear();
+    this.frameTime = Date.now();
+    this.frameDuration = this.frameTime - this.lastFrameTime;
+
+    this.updateAllies();
+    this.updateEnemies();
+
+    this.lastFrameTime = this.frameTime;
+  }
+
+  createAllies = () => {
+  }
+
+  createEnemies = () => {
+    this.waves = [];
+    this.nextWaveTime = Constants.Game.WaveTime;
+  }
+
+  updateAllies = () => {
+  }
+
+  updateEnemies = () => {
+    this.nextWaveTime -= this.frameDuration;
+
+    if (this.nextWaveTime <= 0) {
+      this.createWave();
+      this.nextWaveTime = Constants.Game.WaveTime;
+    }
+
+    for (const wave of this.waves) {
+      wave.update();
+    }
+  }
+
+  createWave = (phaser) => {
+    const wave = new Wave(this);
+    this.waves.push(wave);
+  }
 }
