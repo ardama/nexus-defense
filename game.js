@@ -29,12 +29,9 @@ class Game {
   preload = (phaser) => {
     this.phaser = phaser;
     this.graphics = phaser.add.graphics({ lineStyle: { width: 2, color: 0x00ff00 }, fillStyle: { color: 0xff00ff } });
-    this.phaser.load.image('tower', '/assets/images/default/towerDefense_tile206.png');
   }
 
   create = () => {
-    const tower = this.phaser.add.sprite(32, 32, 'tower', 100);
-
     this.startTime = Date.now();
     this.lastFrameTime = this.startTime;
 

@@ -2,11 +2,9 @@ import Phaser from './lib/phaser.min.js';
 
 export class Wave {
   constructor(game) {
-    console.log("NEW WAVE")
-
     this.game = game;
-    this.units = [];
 
+    this.units = [];
     this.createUnits();
   }
 
@@ -24,14 +22,11 @@ export class Wave {
 
 export class Enemy {
   constructor(game) {
-    console.log("NEW ENEMY");
-
     this.game = game;
 
     this.x = 100;
     this.y = 100;
     this.r = 10;
-
     this.circle = new Phaser.Geom.Circle(this.x, this.y, this.r);
   }
 
