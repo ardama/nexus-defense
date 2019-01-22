@@ -41,23 +41,23 @@ export class Wave {
   constructor(game) {
     this.game = game;
 
-    this.route = [];
-    this.createRoute();
+    this.waypoints = [];
+    this.createWaypoints();
 
     this.units = [];
     this.createUnits();
   }
 
   createUnits = () => {
-    const unit = new Enemy(this.game, this.route);
+    const unit = new Enemy(this.game, this.waypoints);
     this.units.push(unit);
   }
 
-  createRoute = () => {
+  createWaypoints = () => {
     const firstIndex = Math.floor(Math.random() * this.game.startWaypoints.length)
     let waypoint = this.game.startWaypoints[firstIndex];
     while (waypoint) {
-      this.route.push(waypoint);
+      this.waypoints.push(waypoint);
       if (!waypoint.end) {
         const nextIndex = Math.floor(Math.random() * waypoint.nextWaypoints.length)
           waypoint = waypoint.nextWaypoints[nextIndex];
@@ -75,10 +75,11 @@ export class Wave {
 };
 
 export class Enemy {
-  constructor(game, route) {
+  constructor(game, waypoints) {
     this.game = game;
-    this.route = route;
-    this.destination = this.route[1];
+    this.waypoints = waypoints;
+    this.checkpoint = 0;
+    this.destination = this.waypoints[1];
 
     this.speed = 1;
 
