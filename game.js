@@ -1,6 +1,5 @@
 import Constants from './constants.js';
 import { Path, Wave, Waypoint } from './classes.js';
-import Phaser from './lib/phaser.min.js';
 
 export const init = () => {
   const game = new Game();

@@ -11,6 +11,15 @@ export default function makeAnimations(scene) {
     };
     scene.anims.create(config);
     config = {
+        key: 'broken',
+        frames: scene.anims.generateFrameNumbers('tiles', {
+            start: 39,
+            end: 39,
+            first: 39
+        })
+    };
+    scene.anims.create(config);
+    config = {
         key: 'blockTile',
         frames: scene.anims.generateFrameNumbers('tiles', {
             start: 43,
