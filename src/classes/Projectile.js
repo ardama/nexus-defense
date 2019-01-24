@@ -7,7 +7,7 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
     this.scene.add.existing(this);
     this.scene.physics.add.existing(this);
 
-    this.damage = owner.damage;
+    this.damage = owner.damage || owner.stats.attackdamage;
     this.speed = 150;
     this.destroyed = false;
 

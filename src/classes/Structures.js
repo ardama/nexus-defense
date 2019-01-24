@@ -43,7 +43,7 @@ export class Tower extends Phaser.GameObjects.Sprite {
   attack = (target) => {
     if (this.attacktimer <= 0) {
       const projectile = new Projectile(this, target);
-      this.scene.projectiles.push(projectile);
+      this.scene.projectiles.add(projectile);
       this.attacktimer = 1000 / this.attackspeed;
     }
   }

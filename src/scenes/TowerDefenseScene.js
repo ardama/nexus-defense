@@ -2,8 +2,8 @@ import AnimatedTiles from 'phaser-animated-tiles/dist/AnimatedTiles.min.js';
 import Waypoint from '../classes/Waypoint.js';
 import Enemy, { Wave } from '../classes/Enemy.js';
 import { Tower, Inhibitor, Nexus } from '../classes/Structures.js';
-import Constants from '../helpers/constants.js';
-import makeAnimations from '../helpers/animations';
+import Constants from '../utils/constants.js';
+import makeAnimations from '../utils/animations';
 
 
 export default class TowerDefenseScene extends Phaser.Scene {
@@ -37,14 +37,6 @@ export default class TowerDefenseScene extends Phaser.Scene {
       },
     });
 
-    this.towers = {}
-    this.inhibitors = {};
-    this.nexus = {};
-    this.waypoints = [];
-    this.waves = [];
-    this.enemies = [];
-    this.projectiles = [];
-
     this.createGroups();
     this.createStructures();
     this.createWaypoints();
@@ -54,8 +46,7 @@ export default class TowerDefenseScene extends Phaser.Scene {
   update(time, delta) {
     this.graphics.clear();
 
-
-    this.updateTowers(time, delta);
+    this.updateStructures(time, delta);
     this.updateWaypoints(time, delta);
     this.updateEnemies(time, delta);
     this.updateProjectiles(time, delta);
@@ -72,87 +63,112 @@ export default class TowerDefenseScene extends Phaser.Scene {
   }
 
   createGroups = () => {
+    // Structure Groups
+    this.structures = this.add.group()
     this.structureHitboxes = this.add.group()
     this.structureRanges = this.add.group();
+
+    // Enemy Groups
+    this.enemies = this.add.group();
     this.enemyHitboxes = this.add.group()
     this.enemyRanges = this.add.group();
+
+    // Champion Groups
+    this.champions = this.add.group();
+    this.championRanges = this.add.group();
+
+    // Other Groups
+    this.projectiles = this.add.group();
+
+    // Non-GameObject Groups
+    this.towers = { top: [], mid: [], bot: [] }
+    this.inhibitors = {};
+    this.waypoints = [];
+    this.spawnpoints = [];
+    this.waves = [];
   }
 
   createStructures = () => {
-      this.towers = {
-        top: [
-          new Tower(this, 80, 240),
-          new Tower(this, 120, 500),
-          new Tower(this, 100, 720),
-          new Tower(this, 120, 840),
-        ],
-        mid: [
-          new Tower(this, 420, 540),
-          new Tower(this, 360, 680),
-          new Tower(this, 240, 760),
-        ],
-        bot: [
-          new Tower(this, 760, 920),
-          new Tower(this, 500, 880),
-          new Tower(this, 280, 900),
-          new Tower(this, 160, 880),
-        ],
-      };
+    // Top lane Towers
+    const topOuter =  new Tower(this, 80, 240);
+    const topInner =  new Tower(this, 120, 500);
+    const topInhib =  new Tower(this, 100, 720);
+    const topNexus =  new Tower(this, 120, 840);
+    this.structures.add(topOuter);
+    this.structures.add(topInner);
+    this.structures.add(topInhib);
+    this.structures.add(topNexus);
+    this.towers.top.push(topOuter, topInner, topInhib, topNexus);
 
-      this.inhibitors = {
-        top: new Inhibitor(this, 100, 760),
-        mid: new Inhibitor(this, 210, 790),
-        bot: new Inhibitor(this, 240, 900),
-      };
+    // Mid lane Towers
+    const midOuter = new Tower(this, 420, 540);
+    const midInner = new Tower(this, 360, 680);
+    const midInhib = new Tower(this, 240, 760);
+    this.structures.add(midOuter);
+    this.structures.add(midInner);
+    this.structures.add(midInhib);
+    this.towers.mid.push(midOuter, midInner, midInhib);
 
-      this.nexus = new Nexus(this, 110, 890);
+    // Bot lane Towers
+    const botOuter = new Tower(this, 760, 920);
+    const botInner = new Tower(this, 500, 880);
+    const botInhib = new Tower(this, 280, 900);
+    const botNexus = new Tower(this, 160, 880);
+    this.structures.add(botOuter);
+    this.structures.add(botInner);
+    this.structures.add(botInhib);
+    this.structures.add(botNexus);
+    this.towers.bot.push(botOuter, botInner, botInhib, botNexus);
 
+    // Inhibitors
+    const topInhibitor = new Inhibitor(this, 100, 760);
+    const midInhibitor = new Inhibitor(this, 210, 790);
+    const botInhibitor = new Inhibitor(this, 240, 900);
+    this.structures.add(topInhibitor);
+    this.structures.add(midInhibitor);
+    this.structures.add(botInhibitor);
+    this.inhibitors = { top: topInhibitor, mid: midInhibitor, bot: botInhibitor };
+
+    // Nexus
+    const nexus = new Nexus(this, 110, 890);
+    this.structures.add(nexus);
+    this.nexus = nexus;
   }
 
 
   createWaypoints = () => {
+    // Create Waypoints
     const lane_start = new Waypoint(this, 900, 100);
 
     const toplane_1 = new Waypoint(this, 500, 100);
     const toplane_2 = new Waypoint(this, 100, 100);
-
     const midlane_1 = new Waypoint(this, 500, 500);
-
     const botlane_1 = new Waypoint(this, 900, 500);
     const botlane_2 = new Waypoint(this, 900, 900);
 
     const lane_end = new Waypoint(this, 100, 900, true);
 
-    this.waypoints = [lane_start, toplane_1, toplane_2, midlane_1, botlane_1, botlane_2, lane_end];
-    this.startWaypoints = [lane_start];
+    // Add routing options
+    lane_start.waypoints = [toplane_1, midlane_1, botlane_1];
+    toplane_1.waypoints = [toplane_2, midlane_1];
+    toplane_2.waypoints = [lane_end];
+    midlane_1.waypoints = [lane_end]
+    botlane_1.waypoints = [botlane_2, midlane_1];
+    botlane_2.waypoints = [lane_end];
 
-    lane_start.nextWaypoints = [toplane_1, midlane_1, botlane_1];
-    toplane_1.nextWaypoints = [toplane_2, midlane_1];
-    toplane_2.nextWaypoints = [lane_end];
-    midlane_1.nextWaypoints = [lane_end]
-    botlane_1.nextWaypoints = [botlane_2, midlane_1];
-    botlane_2.nextWaypoints = [lane_end];
+    // Add to scene data
+    this.waypoints.push(lane_start, toplane_1, toplane_2, midlane_1, botlane_1, botlane_2, lane_end);
+    this.spawnpoints.push(lane_start);
   }
 
   createEnemies = () => {
     this.nextWaveTime = Constants.Game.FirstWaveTime;
   }
 
-  updateTowers = (time, delta) => {
-    for (const tower of this.towers.top) {
-      tower.update(time, delta);
+  updateStructures = (time, delta) => {
+    for (const structure of this.structures.getChildren()) {
+      structure.update(time, delta);
     }
-    for (const tower of this.towers.mid) {
-      tower.update(time, delta);
-    }
-    for (const tower of this.towers.bot) {
-      tower.update(time, delta);
-    }
-
-    // const inhibitors = [this.inhibitors.top, this.inhibitors.mid, this.inhibitors.bot]
-    // for (const inhibitor of inhibitors) {
-    //   inhibitor.update(time, delta);
-    // }
   }
 
   updateWaypoints = (time, delta) => {
@@ -169,13 +185,13 @@ export default class TowerDefenseScene extends Phaser.Scene {
       this.nextWaveTime = Constants.Game.WaveTime;
     }
 
-    for (const wave of this.waves) {
-      wave.update(time, delta);
+    for (const enemy of this.enemies.getChildren()) {
+      enemy.update(time, delta);
     }
   }
 
   updateProjectiles = (time, delta) => {
-    for (const projectile of this.projectiles) {
+    for (const projectile of this.projectiles.getChildren()) {
       projectile.update(time, delta);
     }
   }

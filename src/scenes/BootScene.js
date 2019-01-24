@@ -1,4 +1,4 @@
-import makeAnimations from '../helpers/animations';
+import makeAnimations from '../utils/animations';
 
 class BootScene extends Phaser.Scene {
     constructor(test) {

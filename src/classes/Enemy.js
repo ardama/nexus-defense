@@ -1,5 +1,6 @@
-import Constants from '../helpers/constants.js';
+import Constants from '../utils/constants.js';
 import Projectile from './Projectile.js';
+import { fuzzyLocation } from '../utils/helpers.js';
 
 export class Wave {
   constructor(scene) {
@@ -8,122 +9,140 @@ export class Wave {
     this.waypoints = [];
     this.createWaypoints();
 
-    this.units = [];
-    this.createUnits();
+    this.enemies = [];
+    this.createEnemies();
   }
 
-  createUnits = () => {
+  createEnemies = () => {
     for (let i = 0; i < Constants.Wave.Minion.Count; i++) {
-      const unit = new Enemy(
+      const enemy = new Enemy(
         this.scene,
         this.waypoints,
         i * Constants.Wave.Minion.Delay,
-        'tiles'
+        'tiles',
       );
-      this.units.push(unit);
+
+      this.enemies.push(enemy);
+      this.scene.enemies.add(enemy);
     }
   }
 
   createWaypoints = () => {
-    const firstIndex = Math.floor(Math.random() * this.scene.startWaypoints.length)
-    let waypoint = this.scene.startWaypoints[firstIndex];
+    // Choose spawn location
+    let index = Math.floor(Math.random() * this.scene.spawnpoints.length)
+    let waypoint = this.scene.spawnpoints[index];
+
     while (waypoint) {
       this.waypoints.push(waypoint);
-      if (!waypoint.end) {
-        const nextIndex = Math.floor(Math.random() * waypoint.nextWaypoints.length)
-        const tempWaypoint = waypoint.nextWaypoints[nextIndex];
-        if (this.waypoints.indexOf(tempWaypoint) === -1) {
-          waypoint = waypoint.nextWaypoints[nextIndex];
-        }
-      } else {
-        waypoint = null;
-      }
-    }
-  }
 
-  update = (time, delta) => {
-    for (const unit of this.units) {
-      unit.update(time, delta);
+      if (waypoint.end) {
+        break;
+      }
+
+      // Choose next Waypoint
+      index = Math.floor(Math.random() * waypoint.waypoints.length)
+      const temp = waypoint.waypoints[index];
+
+      // Avoid duplicates (todo: handle multi step loops)
+      if (this.waypoints.indexOf(temp) === -1) {
+        waypoint = temp;
+      }
     }
   }
 };
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, waypoints, delay, key) {
-    const xOffset = Math.floor(Math.random() * 20) - 10;
-    const yOffset = Math.floor(Math.random() * 20) - 10;
-    super(scene, waypoints[0].x + xOffset, waypoints[0].y + yOffset, key);
+    const spawn = fuzzyLocation(waypoints[0], 10);
+    super(scene, spawn.x, spawn.y, key);
     this.play('broken');
-
-    this.delay = delay;
-    this.waiting = true;
 
     this.waypoints = waypoints;
     this.waypointIndex = 1;
-    this.destination = this.waypoints[this.waypointIndex];
-    this.setComputedDestination(this.destination);
+    this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
     this.destinationType = Constants.Destination.Waypoint;
     this.destinationChanged = false;
 
-    this.isAttacking = false;
+    this.render = {
+      delay: delay,
+      rendered: false,
+    };
 
-    this.baseSpeed = 100;
-    this.tempSpeed = this.baseSpeed;
+    this.stats = {
+      speed: 100,
+      maxhealth: 100,
+      attackspeed: 1,
+      attackdamage: 5,
+      attackrange: 50,
+    }
 
-    this.destroyed = false;
-
-    this.attackspeed = 1;
-    this.attacktimer = 0;
-    this.damage = 5;
-    this.HP = 100;
-
-    // this.circle = new Phaser.Geom.Circle(900, 100, this.r);
-    // this.body = new Phaser.Physics.Arcade.Body(this.scene.physics.world, this.circle);
-    // this.circle = this.scene.add.sprite(this.waypoints[0].x, this.waypoints[0].y, 10);
+    this.state = {
+      speed: this.stats.speed,
+      attacktimer: 0,
+      attacking: false,
+      health: this.stats.maxhealth,
+      destroyed: false,
+    }
   }
 
   update = (time, delta) => {
-    if (this.destroyed) {
+    // Don't update if destroyed
+    if (this.state.destroyed) return;
+
+    // Don't update if pending spawn
+    if (this.render.delay > 0) {
+      this.render.delay -= delta;
       return;
-    } else if (this.delay > 0) {
-      this.delay -= delta;
-      return;
-    } else if (this.waiting) {
-      this.waiting = false;
+    }
+
+    // Configure object if unrendered
+    if (!this.rendered) {
+      this.rendered = true;
+
+      // Add to scene, physics
       this.scene.add.existing(this);
       this.scene.physics.add.existing(this);
 
+      // Adjust hitbox
       this.body.isCircle = true;
       this.body.width = 20;
 
-      const range = 50;
-      this.attackRange = new Phaser.GameObjects.Zone(this.scene, this.x, this.y, range * 2, range * 2);
+      // Create attack range hitbox
+      this.attackRange = new Phaser.GameObjects.Zone(
+        this.scene,
+        this.x,
+        this.y,
+        this.stats.attackrange * 2,
+        this.stats.attackrange * 2,
+      );
+      // todo: standard way to do this?
       this.attackRange.owner = this;
       this.scene.add.existing(this.attackRange)
       this.scene.physics.add.existing(this.attackRange)
-      this.attackRange.body.setCircle(range);
+      this.attackRange.body.setCircle(this.stats.attackrange);
 
+      // Add to scene groups
       this.scene.enemyHitboxes.add(this);
       this.scene.enemyRanges.add(this.attackRange);
-
     }
 
-    // stop moving if finished or attacking
-    if (this.isAttacking) {
+    // Stop moving attacking
+    if (this.state.attacking) {
       this.body.velocity.x = 0;
       this.body.velocity.y = 0;
     } else {
-      // check if we've reached current destination
-      if (Math.abs(this.computedDestination.x - this.x) < 5 && Math.abs(this.computedDestination.y - this.y) < 5) {
-        // if we reached a waypoint, target the next one
+      // Check if we've reached current destination
+      if (Math.abs(this.destination.x - this.x) < 5 && Math.abs(this.destination.y - this.y) < 5) {
+        // If we reached a waypoint, target the next one
         if (this.destinationType === Constants.Destination.Waypoint) {
           this.waypointIndex += 1;
 
           if (this.waypointIndex < this.waypoints.length ) {
-            this.setComputedDestination(this.waypoints[this.waypointIndex]);
+            this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
             this.destinationType = Constants.Destination.Waypoint;
           } else {
-            this.destroyed = true;
+            // Destroy if we've reached the end
+            this.state.destroyed = true;
             this.attackRange.destroy();
             this.destroy();
             return;
@@ -131,42 +150,37 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
         }
       }
 
-      this.scene.physics.moveTo(this, this.computedDestination.x, this.computedDestination.y, this.tempSpeed);
+      this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.state.speed);
       this.attackRange.x = this.x;
       this.attackRange.y = this.y;
     }
 
-    if (this.attacktimer > 0) {
-      this.attacktimer -= delta;
+    // Update attack timer
+    if (this.state.attacktimer > 0) {
+      this.state.attacktimer -= delta;
     }
-    this.isAttacking = false;
+
+    // Reset attacking state
+    this.state.attacking = false;
   }
 
   receiveDamage = (damage) => {
-    this.HP -= damage;
-    if (this.HP <= 0) {
-      this.destroyed = true;
+    this.state.health -= damage;
+
+    // Destroy if health reaches 0
+    if (this.state.health <= 0) {
+      this.state.destroyed = true;
       this.attackRange.destroy();
       this.destroy();
     }
   }
 
   attack = (target) => {
-    this.isAttacking = true;
-    if (this.attacktimer <= 0) {
+    this.state.attacking = true;
+    if (this.state.attacktimer <= 0) {
       const projectile = new Projectile(this, target);
-      this.scene.projectiles.push(projectile);
-      this.attacktimer = 1000 / this.attackspeed;
+      this.scene.projectiles.add(projectile);
+      this.state.attacktimer = 1000 / this.stats.attackspeed;
     }
-  }
-
-  setComputedDestination = (destination) => {
-    const xOffset = Math.floor(Math.random() * 20) - 10;
-    const yOffset = Math.floor(Math.random() * 20) - 10;
-
-    this.computedDestination = {
-      x: destination.x + xOffset,
-      y: destination.y + xOffset,
-    };
   }
 }
