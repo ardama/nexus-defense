@@ -1,4 +1,5 @@
 import Constants from '../helpers/constants.js';
+import Projectile from './Projectile.js';
 
 export class Wave {
   constructor(scene) {
@@ -17,7 +18,7 @@ export class Wave {
         this.scene,
         this.waypoints,
         i * Constants.Wave.Minion.Delay,
-        'mario-sprites'
+        'tiles'
       );
       this.units.push(unit);
     }
@@ -49,16 +50,13 @@ export class Wave {
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, waypoints, delay, key) {
-    const xOffset = Math.floor(Math.random() * 6) - 3;
-    const yOffset = Math.floor(Math.random() * 6) - 3;
+    const xOffset = Math.floor(Math.random() * 20) - 10;
+    const yOffset = Math.floor(Math.random() * 20) - 10;
     super(scene, waypoints[0].x + xOffset, waypoints[0].y + yOffset, key);
-
-    scene.physics.world.enable(this);
+    this.play('broken');
 
     this.delay = delay;
     this.waiting = true;
-
-    this.health = 10;
 
     this.waypoints = waypoints;
     this.waypointIndex = 1;
@@ -72,7 +70,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.baseSpeed = 100;
     this.tempSpeed = this.baseSpeed;
 
-    this.finished = false;
+    this.destroyed = false;
+
+    this.attackspeed = 1;
+    this.attacktimer = 0;
+    this.damage = 5;
+    this.HP = 100;
 
     // this.circle = new Phaser.Geom.Circle(900, 100, this.r);
     // this.body = new Phaser.Physics.Arcade.Body(this.scene.physics.world, this.circle);
@@ -80,16 +83,33 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
   }
 
   update = (time, delta) => {
-    if (this.delay > 0) {
+    if (this.destroyed) {
+      return;
+    } else if (this.delay > 0) {
       this.delay -= delta;
       return;
     } else if (this.waiting) {
       this.waiting = false;
       this.scene.add.existing(this);
+      this.scene.physics.add.existing(this);
+
+      this.body.isCircle = true;
+      this.body.width = 20;
+
+      const range = 50;
+      this.attackRange = new Phaser.GameObjects.Zone(this.scene, this.x, this.y, range * 2, range * 2);
+      this.attackRange.owner = this;
+      this.scene.add.existing(this.attackRange)
+      this.scene.physics.add.existing(this.attackRange)
+      this.attackRange.body.setCircle(range);
+
+      this.scene.enemyHitboxes.add(this);
+      this.scene.enemyRanges.add(this.attackRange);
+
     }
 
-    // stop moving if finished
-    if (this.finished) {
+    // stop moving if finished or attacking
+    if (this.isAttacking) {
       this.body.velocity.x = 0;
       this.body.velocity.y = 0;
     } else {
@@ -103,18 +123,46 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
             this.setComputedDestination(this.waypoints[this.waypointIndex]);
             this.destinationType = Constants.Destination.Waypoint;
           } else {
-            this.finished = true;
+            this.destroyed = true;
+            this.attackRange.destroy();
+            this.destroy();
+            return;
           }
         }
       }
 
       this.scene.physics.moveTo(this, this.computedDestination.x, this.computedDestination.y, this.tempSpeed);
+      this.attackRange.x = this.x;
+      this.attackRange.y = this.y;
+    }
+
+    if (this.attacktimer > 0) {
+      this.attacktimer -= delta;
+    }
+    this.isAttacking = false;
+  }
+
+  receiveDamage = (damage) => {
+    this.HP -= damage;
+    if (this.HP <= 0) {
+      this.destroyed = true;
+      this.attackRange.destroy();
+      this.destroy();
+    }
+  }
+
+  attack = (target) => {
+    this.isAttacking = true;
+    if (this.attacktimer <= 0) {
+      const projectile = new Projectile(this, target);
+      this.scene.projectiles.push(projectile);
+      this.attacktimer = 1000 / this.attackspeed;
     }
   }
 
   setComputedDestination = (destination) => {
-    const xOffset = Math.floor(Math.random() * 6) - 3;
-    const yOffset = Math.floor(Math.random() * 6) - 3;
+    const xOffset = Math.floor(Math.random() * 20) - 10;
+    const yOffset = Math.floor(Math.random() * 20) - 10;
 
     this.computedDestination = {
       x: destination.x + xOffset,

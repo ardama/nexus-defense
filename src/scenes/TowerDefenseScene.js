@@ -22,6 +22,8 @@ export default class TowerDefenseScene extends Phaser.Scene {
     this.load.on('complete', () => {
         makeAnimations(this);
     });
+
+    this.physics.world.enable(this);
   }
 
   create(time, delta) {
@@ -35,7 +37,15 @@ export default class TowerDefenseScene extends Phaser.Scene {
       },
     });
 
+    this.towers = {}
+    this.inhibitors = {};
+    this.nexus = {};
+    this.waypoints = [];
+    this.waves = [];
+    this.enemies = [];
+    this.projectiles = [];
 
+    this.createGroups();
     this.createStructures();
     this.createWaypoints();
     this.createEnemies();
@@ -45,11 +55,27 @@ export default class TowerDefenseScene extends Phaser.Scene {
     this.graphics.clear();
 
 
-    this.updateTowers();
+    this.updateTowers(time, delta);
     this.updateWaypoints(time, delta);
     this.updateEnemies(time, delta);
+    this.updateProjectiles(time, delta);
 
-    this.lastFrameTime = this.frameTime;
+    this.physics.overlap(this.structureRanges, this.enemyHitboxes, (range, target) => {
+      const structure = range.owner;
+      structure.attack(target);
+    });
+
+    this.physics.overlap(this.enemyRanges, this.structureHitboxes, (range, target) => {
+      const enemy = range.owner;
+      enemy.attack(target);
+    });
+  }
+
+  createGroups = () => {
+    this.structureHitboxes = this.add.group()
+    this.structureRanges = this.add.group();
+    this.enemyHitboxes = this.add.group()
+    this.enemyRanges = this.add.group();
   }
 
   createStructures = () => {
@@ -109,8 +135,7 @@ export default class TowerDefenseScene extends Phaser.Scene {
   }
 
   createEnemies = () => {
-    this.waves = [];
-    this.nextWaveTime = Constants.Game.WaveTime;
+    this.nextWaveTime = Constants.Game.FirstWaveTime;
   }
 
   updateTowers = (time, delta) => {
@@ -146,6 +171,12 @@ export default class TowerDefenseScene extends Phaser.Scene {
 
     for (const wave of this.waves) {
       wave.update(time, delta);
+    }
+  }
+
+  updateProjectiles = (time, delta) => {
+    for (const projectile of this.projectiles) {
+      projectile.update(time, delta);
     }
   }
 

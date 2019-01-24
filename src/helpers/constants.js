@@ -1,6 +1,7 @@
 const Constants = {
   Game: {
-    WaveTime: 1500 * 1,
+    FirstWaveTime: 1000 * 1,
+    WaveTime: 1000 * 3,
   },
   Destination: {
     Waypoint: 0,
@@ -9,7 +10,7 @@ const Constants = {
   Wave: {
     Minion: {
       Count: 6,
-      Delay: 200,
+      Delay: 150,
     }
   }
 };
