@@ -1,7 +1,5 @@
 import 'phaser';
-import TowerDefenseScene from './scenes/TowerDefenseScene';
 import GameScene from './scenes/GameScene';
-import TitleScene from './scenes/TitleScene';
 
 const config = {
   // For more settings see <https://github.com/photonstorm/phaser/blob/master/src/boot/Config.js>
@@ -18,7 +16,7 @@ const config = {
     }
   },
   scene: [
-    TowerDefenseScene,
+    GameScene,
   ],
 };
 

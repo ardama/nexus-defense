@@ -3,29 +3,33 @@ import Projectile from './Projectile.js';
 export class Tower extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'tiles');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
-    this.body.isCircle = true;
-    this.body.width = 30;
-    this.play('brickTile');
 
-    const towerRange = 100
+    // Set base stats
+    this.stats = {
+      attackrange: 100,
+      attackdamage: 30,
+      attackspeed: 3.5,
+      maxhealth: 1000,
 
-    this.attackRange = new Phaser.GameObjects.Zone(scene, x, y, towerRange * 2, towerRange * 2);
+    };
+
+    // Set initial state
+    this.state = {
+      rendered: false,
+      destroyed: false,
+      attacktimer: 0,
+    };
+
+    // Create attack range zone
+    this.attackRange = new Phaser.GameObjects.Zone(
+      scene, x, y,
+      this.stats.attackrange * 2,
+      this.stats.attackrange * 2,
+    );
     this.attackRange.owner = this;
-    this.scene.add.existing(this.attackRange)
-    this.scene.physics.add.existing(this.attackRange)
-    this.attackRange.body.setCircle(towerRange);
 
-    this.HP = 1000;
-    this.destroyed = false;
-
-    this.damage = 30;
-    this.attackspeed = 3.5;
-    this.attacktimer = 0;
-
-    scene.structureHitboxes.add(this);
-    scene.structureRanges.add(this.attackRange);
+    // Render to scene
+    this.renderToScene();
   }
 
   update(time, delta) {
@@ -38,6 +42,29 @@ export class Tower extends Phaser.GameObjects.Sprite {
     if (this.attacktimer > 0) {
       this.attacktimer -= delta;
     }
+  }
+
+  renderToScene = () => {
+    // Add to scene
+    this.scene.add.existing(this);
+    this.play('brickTile');
+
+    // Add to physics
+    this.scene.physics.add.existing(this);
+    this.body.isCircle = true;
+    this.body.width = 30;
+
+    // Add attack range to scene/physics
+    this.scene.add.existing(this.attackRange)
+    this.scene.physics.add.existing(this.attackRange)
+    this.attackRange.body.setCircle(towerRange);
+
+    // Add to scene groups
+    scene.structureHitboxes.add(this);
+    scene.structureRanges.add(this.attackRange);
+
+    // Update rendered state
+    this.state.rendered = true;
   }
 
   attack = (target) => {
@@ -56,6 +83,7 @@ export class Tower extends Phaser.GameObjects.Sprite {
       this.destroy();
     }
   }
+
 }
 
 export class Inhibitor extends Phaser.GameObjects.Sprite {

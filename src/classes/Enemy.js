@@ -53,21 +53,11 @@ export class Wave {
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, waypoints, delay, key) {
+    // Compute spawn location
     const spawn = fuzzyLocation(waypoints[0], 10);
     super(scene, spawn.x, spawn.y, key);
-    this.play('broken');
 
-    this.waypoints = waypoints;
-    this.waypointIndex = 1;
-    this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
-    this.destinationType = Constants.Destination.Waypoint;
-    this.destinationChanged = false;
-
-    this.render = {
-      delay: delay,
-      rendered: false,
-    };
-
+    // Set base stats
     this.stats = {
       speed: 100,
       maxhealth: 100,
@@ -76,13 +66,33 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       attackrange: 50,
     }
 
+    // Set initial state
     this.state = {
+      rendered: false,
+      renderdelay: delay,
+      destroyed: false,
       speed: this.stats.speed,
       attacktimer: 0,
       attacking: false,
       health: this.stats.maxhealth,
-      destroyed: false,
     }
+
+    // Create attack range hitbox
+    this.attackRange = new Phaser.GameObjects.Zone(
+      this.scene,
+      this.x,
+      this.y,
+      this.stats.attackrange * 2,
+      this.stats.attackrange * 2,
+    );
+    // todo: standard way to define parent/child?
+    this.attackRange.owner = this;
+
+    this.waypoints = waypoints;
+    this.waypointIndex = 1;
+    this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
+    this.destinationType = Constants.Destination.Waypoint;
+    this.destinationChanged = false;
   }
 
   update = (time, delta) => {
@@ -90,40 +100,14 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     if (this.state.destroyed) return;
 
     // Don't update if pending spawn
-    if (this.render.delay > 0) {
-      this.render.delay -= delta;
+    if (this.state.renderdelay > 0) {
+      this.state.renderdelay -= delta;
       return;
     }
 
-    // Configure object if unrendered
-    if (!this.rendered) {
-      this.rendered = true;
-
-      // Add to scene, physics
-      this.scene.add.existing(this);
-      this.scene.physics.add.existing(this);
-
-      // Adjust hitbox
-      this.body.isCircle = true;
-      this.body.width = 20;
-
-      // Create attack range hitbox
-      this.attackRange = new Phaser.GameObjects.Zone(
-        this.scene,
-        this.x,
-        this.y,
-        this.stats.attackrange * 2,
-        this.stats.attackrange * 2,
-      );
-      // todo: standard way to do this?
-      this.attackRange.owner = this;
-      this.scene.add.existing(this.attackRange)
-      this.scene.physics.add.existing(this.attackRange)
-      this.attackRange.body.setCircle(this.stats.attackrange);
-
-      // Add to scene groups
-      this.scene.enemyHitboxes.add(this);
-      this.scene.enemyRanges.add(this.attackRange);
+    // Render object if unrendered
+    if (!this.state.rendered) {
+      this.renderToScene();
     }
 
     // Stop moving attacking
@@ -164,6 +148,29 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.state.attacking = false;
   }
 
+  renderToScene = () => {
+    // Add to scene
+    this.scene.add.existing(this);
+    this.play('broken');
+
+    // Add to physics
+    this.scene.physics.add.existing(this);
+    this.body.isCircle = true;
+    this.body.width = 20;
+
+    // Add attack range to scene/physics
+    this.scene.add.existing(this.attackRange)
+    this.scene.physics.add.existing(this.attackRange)
+    this.attackRange.body.setCircle(this.stats.attackrange);
+
+    // Add to scene groups
+    this.scene.enemyHitboxes.add(this);
+    this.scene.enemyRanges.add(this.attackRange);
+
+    // Update rendered state
+    this.rendered = true;
+  }
+
   receiveDamage = (damage) => {
     this.state.health -= damage;
 
@@ -179,7 +186,6 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.state.attacking = true;
     if (this.state.attacktimer <= 0) {
       const projectile = new Projectile(this, target);
-      this.scene.projectiles.add(projectile);
       this.state.attacktimer = 1000 / this.stats.attackspeed;
     }
   }
