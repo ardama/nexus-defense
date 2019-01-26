@@ -1,4 +1,6 @@
-import Constants from '../helpers/constants.js';
+import Constants from '../utils/constants.js';
+import Projectile from './Projectile.js';
+import { fuzzyLocation } from '../utils/helpers.js';
 
 export class Wave {
   constructor(scene) {
@@ -7,118 +9,184 @@ export class Wave {
     this.waypoints = [];
     this.createWaypoints();
 
-    this.units = [];
-    this.createUnits();
+    this.enemies = [];
+    this.createEnemies();
   }
 
-  createUnits = () => {
+  createEnemies = () => {
     for (let i = 0; i < Constants.Wave.Minion.Count; i++) {
-      const unit = new Enemy(
+      const enemy = new Enemy(
         this.scene,
         this.waypoints,
         i * Constants.Wave.Minion.Delay,
-        'mario-sprites'
+        'tiles',
       );
-      this.units.push(unit);
+
+      this.enemies.push(enemy);
+      this.scene.enemies.add(enemy);
     }
   }
 
   createWaypoints = () => {
-    const firstIndex = Math.floor(Math.random() * this.scene.startWaypoints.length)
-    let waypoint = this.scene.startWaypoints[firstIndex];
+    // Choose spawn location
+    let index = Math.floor(Math.random() * this.scene.spawnpoints.length)
+    let waypoint = this.scene.spawnpoints[index];
+
     while (waypoint) {
       this.waypoints.push(waypoint);
-      if (!waypoint.end) {
-        const nextIndex = Math.floor(Math.random() * waypoint.nextWaypoints.length)
-        const tempWaypoint = waypoint.nextWaypoints[nextIndex];
-        if (this.waypoints.indexOf(tempWaypoint) === -1) {
-          waypoint = waypoint.nextWaypoints[nextIndex];
-        }
-      } else {
-        waypoint = null;
-      }
-    }
-  }
 
-  update = (time, delta) => {
-    for (const unit of this.units) {
-      unit.update(time, delta);
+      if (waypoint.end) {
+        break;
+      }
+
+      // Choose next Waypoint
+      index = Math.floor(Math.random() * waypoint.waypoints.length)
+      const temp = waypoint.waypoints[index];
+
+      // Avoid duplicates (todo: handle multi step loops)
+      if (this.waypoints.indexOf(temp) === -1) {
+        waypoint = temp;
+      }
     }
   }
 };
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, waypoints, delay, key) {
-    const xOffset = Math.floor(Math.random() * 6) - 3;
-    const yOffset = Math.floor(Math.random() * 6) - 3;
-    super(scene, waypoints[0].x + xOffset, waypoints[0].y + yOffset, key);
+    // Compute spawn location
+    const spawn = fuzzyLocation(waypoints[0], 10);
+    super(scene, spawn.x, spawn.y, key);
 
-    scene.physics.world.enable(this);
+    // Set base stats
+    this.stats = {
+      speed: 100,
+      maxhealth: 100,
+      attackspeed: 1,
+      attackdamage: 5,
+      attackrange: 50,
+    }
 
-    this.delay = delay;
-    this.waiting = true;
+    // Set initial state
+    this.state = {
+      rendered: false,
+      renderdelay: delay,
+      destroyed: false,
+      speed: this.stats.speed,
+      attacktimer: 0,
+      attacking: false,
+      health: this.stats.maxhealth,
+    }
 
-    this.health = 10;
+    // Create attack range hitbox
+    this.attackRange = new Phaser.GameObjects.Zone(
+      this.scene,
+      this.x,
+      this.y,
+      this.stats.attackrange * 2,
+      this.stats.attackrange * 2,
+    );
+    // todo: standard way to define parent/child?
+    this.attackRange.owner = this;
 
     this.waypoints = waypoints;
     this.waypointIndex = 1;
-    this.destination = this.waypoints[this.waypointIndex];
-    this.setComputedDestination(this.destination);
+    this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
     this.destinationType = Constants.Destination.Waypoint;
     this.destinationChanged = false;
-
-    this.isAttacking = false;
-
-    this.baseSpeed = 100;
-    this.tempSpeed = this.baseSpeed;
-
-    this.finished = false;
-
-    // this.circle = new Phaser.Geom.Circle(900, 100, this.r);
-    // this.body = new Phaser.Physics.Arcade.Body(this.scene.physics.world, this.circle);
-    // this.circle = this.scene.add.sprite(this.waypoints[0].x, this.waypoints[0].y, 10);
   }
 
   update = (time, delta) => {
-    if (this.delay > 0) {
-      this.delay -= delta;
+    // Don't update if destroyed
+    if (this.state.destroyed) return;
+
+    // Don't update if pending spawn
+    if (this.state.renderdelay > 0) {
+      this.state.renderdelay -= delta;
       return;
-    } else if (this.waiting) {
-      this.waiting = false;
-      this.scene.add.existing(this);
     }
 
-    // stop moving if finished
-    if (this.finished) {
+    // Render object if unrendered
+    if (!this.state.rendered) {
+      this.renderToScene();
+    }
+
+    // Stop moving attacking
+    if (this.state.attacking) {
       this.body.velocity.x = 0;
       this.body.velocity.y = 0;
     } else {
-      // check if we've reached current destination
-      if (Math.abs(this.computedDestination.x - this.x) < 5 && Math.abs(this.computedDestination.y - this.y) < 5) {
-        // if we reached a waypoint, target the next one
+      // Check if we've reached current destination
+      if (Math.abs(this.destination.x - this.x) < 5 && Math.abs(this.destination.y - this.y) < 5) {
+        // If we reached a waypoint, target the next one
         if (this.destinationType === Constants.Destination.Waypoint) {
           this.waypointIndex += 1;
 
           if (this.waypointIndex < this.waypoints.length ) {
-            this.setComputedDestination(this.waypoints[this.waypointIndex]);
+            this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
             this.destinationType = Constants.Destination.Waypoint;
           } else {
-            this.finished = true;
+            // Destroy if we've reached the end
+            this.state.destroyed = true;
+            this.attackRange.destroy();
+            this.destroy();
+            return;
           }
         }
       }
 
-      this.scene.physics.moveTo(this, this.computedDestination.x, this.computedDestination.y, this.tempSpeed);
+      this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.state.speed);
+      this.attackRange.x = this.x;
+      this.attackRange.y = this.y;
+    }
+
+    // Update attack timer
+    if (this.state.attacktimer > 0) {
+      this.state.attacktimer -= delta;
+    }
+
+    // Reset attacking state
+    this.state.attacking = false;
+  }
+
+  renderToScene = () => {
+    // Add to scene
+    this.scene.add.existing(this);
+    this.play('broken');
+
+    // Add to physics
+    this.scene.physics.add.existing(this);
+    this.body.isCircle = true;
+    this.body.width = 20;
+
+    // Add attack range to scene/physics
+    this.scene.add.existing(this.attackRange)
+    this.scene.physics.add.existing(this.attackRange)
+    this.attackRange.body.setCircle(this.stats.attackrange);
+
+    // Add to scene groups
+    this.scene.enemyHitboxes.add(this);
+    this.scene.enemyRanges.add(this.attackRange);
+
+    // Update rendered state
+    this.rendered = true;
+  }
+
+  receiveDamage = (damage) => {
+    this.state.health -= damage;
+
+    // Destroy if health reaches 0
+    if (this.state.health <= 0) {
+      this.state.destroyed = true;
+      this.attackRange.destroy();
+      this.destroy();
     }
   }
 
-  setComputedDestination = (destination) => {
-    const xOffset = Math.floor(Math.random() * 6) - 3;
-    const yOffset = Math.floor(Math.random() * 6) - 3;
-
-    this.computedDestination = {
-      x: destination.x + xOffset,
-      y: destination.y + xOffset,
-    };
+  attack = (target) => {
+    this.state.attacking = true;
+    if (this.state.attacktimer <= 0) {
+      const projectile = new Projectile(this, target);
+      this.state.attacktimer = 1000 / this.stats.attackspeed;
+    }
   }
 }
