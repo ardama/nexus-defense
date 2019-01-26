@@ -1,4 +1,5 @@
 import Constants from '../utils/constants.js';
+import GameData from '../utils/gamedata.js';
 import Projectile from './Projectile.js';
 import { fuzzyLocation } from '../utils/helpers.js';
 
@@ -17,9 +18,9 @@ export class Wave {
     for (let i = 0; i < Constants.Wave.Minion.Count; i++) {
       const enemy = new Enemy(
         this.scene,
+        'CasterMinion',
         this.waypoints,
         i * Constants.Wave.Minion.Delay,
-        'tiles',
       );
 
       this.enemies.push(enemy);
@@ -52,30 +53,26 @@ export class Wave {
 };
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
-  constructor(scene, waypoints, delay, key) {
-    // Compute spawn location
+  constructor(scene, name, waypoints, delay) {
+    const config = GameData.Enemy[name];
     const spawn = fuzzyLocation(waypoints[0], 10);
-    super(scene, spawn.x, spawn.y, key);
-
-    // Set base stats
-    this.stats = {
-      speed: 100,
-      maxhealth: 100,
-      attackspeed: 1,
-      attackdamage: 5,
-      attackrange: 50,
-    }
+    super(scene, spawn.x, spawn.y, config.appearance.key);
+    
+    this.config = config;
 
     // Set initial state
     this.state = {
       rendered: false,
       renderdelay: delay,
       destroyed: false,
-      speed: this.stats.speed,
+      
       attacktimer: 0,
       attacking: false,
-      health: this.stats.maxhealth,
+      missinghealth: 0,
+      level: 1,
     }
+    
+    this.updateStats();
 
     // Create attack range hitbox
     this.attackRange = new Phaser.GameObjects.Zone(
@@ -134,7 +131,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
         }
       }
 
-      this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.state.speed);
+      this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.stats.movespeed);
       this.attackRange.x = this.x;
       this.attackRange.y = this.y;
     }
@@ -156,7 +153,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     // Add to physics
     this.scene.physics.add.existing(this);
     this.body.isCircle = true;
-    this.body.width = 20;
+    this.body.width = this.config.appearance.hitbox.width;
 
     // Add attack range to scene/physics
     this.scene.add.existing(this.attackRange)
@@ -168,14 +165,31 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.scene.enemyRanges.add(this.attackRange);
 
     // Update rendered state
-    this.rendered = true;
+    this.state.rendered = true;
+  }
+  
+  updateStats = () => {
+    const { level } = this.state;
+    const { base, scaling } = this.config;
+
+    this.stats = {
+      attackdamage: base.attackdamage + scaling.attackdamage * level,
+      attackrange: base.attackrange,
+      attackspeed: base.attackspeed * (1 + scaling.attackspeed * level),
+      movespeed: base.movespeed,
+      criticalchance: 0,
+      maxhealth: base.maxhealth + scaling.maxhealth * level,
+      healthregen: base.healthregen + scaling.healthregen * level,
+      armor: base.armor + scaling.armor * level,
+      magicresist: base.magicresist + scaling.magicresist * level,
+    };
   }
 
   receiveDamage = (damage) => {
-    this.state.health -= damage;
+    this.state.missinghealth += damage;
 
     // Destroy if health reaches 0
-    if (this.state.health <= 0) {
+    if (this.state.missinghealth >= this.stats.maxhealth) {
       this.state.destroyed = true;
       this.attackRange.destroy();
       this.destroy();

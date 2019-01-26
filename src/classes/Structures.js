@@ -4,21 +4,14 @@ export class Tower extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'tiles');
 
-    // Set base stats
-    this.stats = {
-      attackrange: 100,
-      attackdamage: 30,
-      attackspeed: 3.5,
-      maxhealth: 1000,
-
-    };
-
     // Set initial state
     this.state = {
       rendered: false,
       destroyed: false,
       attacktimer: 0,
     };
+    
+    this.updateStats();
 
     // Create attack range zone
     this.attackRange = new Phaser.GameObjects.Zone(
@@ -43,6 +36,16 @@ export class Tower extends Phaser.GameObjects.Sprite {
       this.attacktimer -= delta;
     }
   }
+  
+  updateStats = () => {
+    this.stats = {
+      attackrange: 100,
+      attackdamage: 30,
+      attackspeed: 3.5,
+      maxhealth: 1000,
+
+    };
+  }
 
   renderToScene = () => {
     // Add to scene
@@ -57,11 +60,11 @@ export class Tower extends Phaser.GameObjects.Sprite {
     // Add attack range to scene/physics
     this.scene.add.existing(this.attackRange)
     this.scene.physics.add.existing(this.attackRange)
-    this.attackRange.body.setCircle(towerRange);
+    this.attackRange.body.setCircle(this.stats.attackrange);
 
     // Add to scene groups
-    scene.structureHitboxes.add(this);
-    scene.structureRanges.add(this.attackRange);
+    this.scene.structureHitboxes.add(this);
+    this.scene.structureRanges.add(this.attackRange);
 
     // Update rendered state
     this.state.rendered = true;

@@ -15,7 +15,7 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
     // Set initial state
     this.state = {
       rendered: false,
-      state.destroyed: false,
+      destroyed: false,
     };
 
     // Set target destination
