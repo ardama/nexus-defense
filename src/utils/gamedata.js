@@ -1,3 +1,5 @@
+import C from './constants.js';
+
 const GameData = {
   Champion: _getChampionGameData(),
   Enemy: _getEnemyGameData(),
@@ -8,8 +10,8 @@ const GameData = {
 };
 
 function _getChampionGameData() {
-  return {  
-    Anivia: {
+  return {
+    [C.Champion.Anivia]: {
       appearance: {
         key: '',
       },
@@ -34,10 +36,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Alistar: {
+
+    },
+
+    [C.Champion.Alistar]: {
       appearance: {
         key: '',
       },
@@ -62,10 +64,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Cassiopeia: {
+
+    },
+
+    [C.Champion.Cassiopeia]: {
       appearance: {
         key: '',
       },
@@ -90,10 +92,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Janna: {
+
+    },
+
+    [C.Champion.Janna]: {
       appearance: {
         key: '',
       },
@@ -118,10 +120,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    JarvanIV: {
+
+    },
+
+    [C.Champion.JarvanIV]: {
       appearance: {
         key: '',
       },
@@ -146,10 +148,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Karthus: {
+
+    },
+
+    [C.Champion.Karthus]: {
       appearance: {
         key: '',
       },
@@ -174,10 +176,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Leona: {
+
+    },
+
+    [C.Champion.Leona]: {
       appearance: {
         key: '',
       },
@@ -202,10 +204,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Nami: {
+
+    },
+
+    [C.Champion.Nami]: {
       appearance: {
         key: '',
       },
@@ -230,10 +232,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Ornn: {
+
+    },
+
+    [C.Champion.Ornn]: {
       appearance: {
         key: '',
       },
@@ -258,10 +260,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Twitch: {
+
+    },
+
+    [C.Champion.Twitch]: {
       appearance: {
         key: '',
       },
@@ -286,10 +288,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    TwistedFate: {
+
+    },
+
+    [C.Champion.TwistedFate]: {
       appearance: {
         key: '',
       },
@@ -314,10 +316,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Vayne: {
+
+    },
+
+    [C.Champion.Vayne]: {
       appearance: {
         key: '',
       },
@@ -342,10 +344,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Ziggs: {
+
+    },
+
+    [C.Champion.Ziggs]: {
       appearance: {
         key: '',
       },
@@ -370,10 +372,10 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },  
-    
-    Zilean: {
+
+    },
+
+    [C.Champion.Zilean]: {
       appearance: {
         key: '',
       },
@@ -398,14 +400,14 @@ function _getChampionGameData() {
         // magicresist: 10,
       },
       unlocked: () => {},
-      
-    },    
+
+    },
   };
 };
 
 function _getEnemyGameData() {
   return {
-    CasterMinion: {
+    [C.Enemy.CasterMinion]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -435,7 +437,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    MeleeMinion: {
+    [C.Enemy.MeleeMinion]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -465,7 +467,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    SiegeMinion: {
+    [C.Enemy.SiegeMinion]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -495,7 +497,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    SuperMinion: {
+    [C.Enemy.SuperMinion]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -525,7 +527,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    Raptor: {
+    [C.Enemy.Raptor]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -555,7 +557,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    SmallRaptor: {
+    [C.Enemy.SmallRaptor]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -585,7 +587,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    Wolf: {
+    [C.Enemy.Wolf]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -615,7 +617,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    SmallWolf: {
+    [C.Enemy.SmallWolf]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -645,7 +647,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    Krug: {
+    [C.Enemy.Krug]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -675,7 +677,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    MediumKrug: {
+    [C.Enemy.MediumKrug]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -705,7 +707,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    SmallKrug: {
+    [C.Enemy.SmallKrug]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -735,7 +737,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    Gromp: {
+    [C.Enemy.Gromp]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -765,7 +767,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    RedGolem: {
+    [C.Enemy.RedGolem]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -795,7 +797,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    BlueGolem: {
+    [C.Enemy.BlueGolem]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -825,7 +827,7 @@ function _getEnemyGameData() {
         xp: 2,
       },
     },
-    RiftHerald: {
+    [C.Enemy.RiftHerald]: {
       appearance: {
         key: 'tiles',
         hitbox: {
@@ -860,34 +862,115 @@ function _getEnemyGameData() {
 
 function _getStructureGameData() {
   return {
-    
-    
+
+
   };
 }
 
 function _getItemGameData() {
   return {
-    
-    
+
+
   };
 }
 
 function _getWaveGameData() {
   return {
-    
-    
+    [C.Wave.MinionBasic]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+      ],
+    },
+    [C.Wave.MinionSiege]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.SiegeMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+      ],
+    },
+    [C.Wave.MinionSuper]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.MeleeMinion,
+        C.Enemy.SuperMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+        C.Enemy.CasterMinion,
+      ],
+    },
+    [C.Wave.Raptor]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.SmallRaptor,
+        C.Enemy.SmallRaptor,
+        C.Enemy.SmallRaptor,
+        C.Enemy.Raptor,
+        C.Enemy.SmallRaptor,
+        C.Enemy.SmallRaptor,
+      ],
+    },
+    [C.Wave.Wolf]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.SmallWolf,
+        C.Enemy.Wolf,
+        C.Enemy.SmallWolf,
+      ],
+    },
+    [C.Wave.Krug]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.Krug,
+        C.Enemy.MediumKrug,
+      ],
+    },
+    [C.Wave.Gromp]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.Gromp,
+      ],
+    },
+    [C.Wave.Blue]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.BlueGolem,
+        C.Enemy.MediumKrug,
+      ],
+    },
+    [C.Wave.Red]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.RedGolem,
+      ],
+    },
+    [C.Wave.RiftHerald]: {
+      delay: C.Wave.Delay.Medium,
+      enemies: [
+        C.Enemy.RiftHerald,
+      ],
+    },
+
   };
 }
 
 function _getDifficultyGameData() {
   return {
-    
-    
+
+
   };
 }
-
-
-
-
 
 export default GameData;

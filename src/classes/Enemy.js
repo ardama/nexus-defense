@@ -1,66 +1,14 @@
-import Constants from '../utils/constants.js';
-import GameData from '../utils/gamedata.js';
+import C from '../utils/constants.js';
+import D from '../utils/gamedata.js';
 import Projectile from './Projectile.js';
 import { fuzzyLocation } from '../utils/helpers.js';
 
-export class Wave {
-  constructor(scene, origin) {
-    this.scene = scene;
-
-    this.waypoints = [];
-    this.createWaypoints(origin);
-
-    this.enemies = [];
-    this.createEnemies();
-  }
-
-  createEnemies = () => {
-    for (let i = 0; i < Constants.Wave.Minion.Count; i++) {
-      const enemy = new Enemy(
-        this.scene,
-        'CasterMinion',
-        this.waypoints,
-        i * Constants.Wave.Minion.Delay,
-      );
-
-      this.enemies.push(enemy);
-      this.scene.enemies.add(enemy);
-    }
-  }
-
-  createWaypoints = (origin) => {
-    const route = this.scene.routes[origin]
-    if (route) this.waypoints = route;
-    
-    // Choose spawn location
-    // let index = Math.floor(Math.random() * this.scene.spawnpoints.length)
-    // let waypoint = this.scene.spawnpoints[index];
-    // 
-    // while (waypoint) {
-    //   this.waypoints.push(waypoint);
-    // 
-    //   if (waypoint.end) {
-    //     break;
-    //   }
-    // 
-    //   // Choose next Waypoint
-    //   index = Math.floor(Math.random() * waypoint.waypoints.length)
-    //   const temp = waypoint.waypoints[index];
-    // 
-    //   // Avoid duplicates (todo: handle multi step loops)
-    //   if (this.waypoints.indexOf(temp) === -1) {
-    //     waypoint = temp;
-    //   }
-    // }
-  }
-};
-
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, name, waypoints, delay) {
-    const config = GameData.Enemy[name];
+    const config = D.Enemy[name];
     const spawn = fuzzyLocation(waypoints[0], 10);
     super(scene, spawn.x, spawn.y, config.appearance.key);
-    
+
     this.config = config;
 
     // Set initial state
@@ -68,13 +16,13 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       rendered: false,
       renderdelay: delay,
       destroyed: false,
-      
+
       attacktimer: 0,
       attacking: false,
       missinghealth: 0,
       level: 1,
     }
-    
+
     this.updateStats();
 
     // Create attack range hitbox
@@ -91,7 +39,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.waypoints = waypoints;
     this.waypointIndex = 1;
     this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
-    this.destinationType = Constants.Destination.Waypoint;
+    this.destinationType = C.Destination.Waypoint;
     this.destinationChanged = false;
   }
 
@@ -118,12 +66,12 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       // Check if we've reached current destination
       if (Math.abs(this.destination.x - this.x) < 5 && Math.abs(this.destination.y - this.y) < 5) {
         // If we reached a waypoint, target the next one
-        if (this.destinationType === Constants.Destination.Waypoint) {
+        if (this.destinationType === C.Destination.Waypoint) {
           this.waypointIndex += 1;
 
           if (this.waypointIndex < this.waypoints.length ) {
             this.destination = fuzzyLocation(this.waypoints[this.waypointIndex], 10);
-            this.destinationType = Constants.Destination.Waypoint;
+            this.destinationType = C.Destination.Waypoint;
           } else {
             // Destroy if we've reached the end
             this.state.destroyed = true;
@@ -170,7 +118,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     // Update rendered state
     this.state.rendered = true;
   }
-  
+
   updateStats = () => {
     const { level } = this.state;
     const { base, scaling } = this.config;
@@ -205,7 +153,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     const onHit = (projectile) => {
       projectile.target.receiveDamage(damage);
     }
-    
+
     this.state.attacking = true;
     if (this.state.attacktimer <= 0) {
       const projectile = new Projectile(this, target, onHit);
