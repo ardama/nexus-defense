@@ -1,14 +1,14 @@
 export default class Projectile extends Phaser.GameObjects.Sprite {
-  constructor(owner, target) {
+  constructor(owner, target, onHit) {
     super(owner.scene, owner.x, owner.y, 'mario-sprites');
 
     // Save owner, target
     this.owner = owner;
     this.target = target;
+    this.onHit = onHit;
 
     // Set base stats
     this.stats = {
-      damage: owner.stats.attackdamage,
       speed: 150,
     };
 
@@ -70,8 +70,8 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
   }
 
   handleTargetHit = () => {
-    // Deal damage to target
-    this.target.receiveDamage(this.damage);
+    // Call onHit callback
+    this.onHit(this);
 
     // Destroy object
     this.state.destroyed = true;

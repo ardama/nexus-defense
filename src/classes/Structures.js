@@ -9,6 +9,7 @@ export class Tower extends Phaser.GameObjects.Sprite {
       rendered: false,
       destroyed: false,
       attacktimer: 0,
+      missinghealth: 0,
     };
     
     this.updateStats();
@@ -26,14 +27,8 @@ export class Tower extends Phaser.GameObjects.Sprite {
   }
 
   update(time, delta) {
-    if (this.HP <= 0 && !this.destroyed) {
-      this.destroyed = true;
-      this.body.destroy();
-      this.attackRange.body.destroy();
-    }
-
-    if (this.attacktimer > 0) {
-      this.attacktimer -= delta;
+    if (this.state.attacktimer > 0) {
+      this.state.attacktimer -= delta;
     }
   }
   
@@ -43,7 +38,6 @@ export class Tower extends Phaser.GameObjects.Sprite {
       attackdamage: 30,
       attackspeed: 3.5,
       maxhealth: 1000,
-
     };
   }
 
@@ -70,43 +64,75 @@ export class Tower extends Phaser.GameObjects.Sprite {
     this.state.rendered = true;
   }
 
-  attack = (target) => {
-    if (this.attacktimer <= 0) {
-      const projectile = new Projectile(this, target);
+  basicAttack = (target) => {
+    // Create Projectile onHit callback
+    const damage = this.stats.attackdamage;
+    const onHit = (projectile) => {
+      projectile.target.receiveDamage(damage);
+    }
+    
+    if (this.state.attacktimer <= 0) {
+      const projectile = new Projectile(this, target, onHit);
       this.scene.projectiles.add(projectile);
-      this.attacktimer = 1000 / this.attackspeed;
+      this.state.attacktimer = 1000 / this.stats.attackspeed;
     }
   }
 
   receiveDamage = (damage) => {
-    this.HP -= damage;
-    if (this.HP <= 0) {
-      this.destroyed = true;
+    this.state.missinghealth += damage;
+
+    // Destroy if health reaches 0
+    if (this.state.missinghealth >= this.stats.maxhealth) {
+      this.state.destroyed = true;
       this.attackRange.destroy();
       this.destroy();
     }
   }
-
 }
 
 export class Inhibitor extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'tiles');
+    
+    // Set initial state
+    this.state = {
+      rendered: false,
+      destroyed: false,
+      missinghealth: 0,
+    };
+    
+    this.updateStats();
+    
+    // Render to scene
+    this.renderToScene();
+  }
+  
+  updateStats = () => {
+    this.stats = {
+      maxhealth: 3000,
+    }
+  }
+  
+  renderToScene = () => {
+    // Add to scene
+    this.scene.add.existing(this);
     this.play('broken');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
+    
+    // Add to physics
+    this.scene.physics.add.existing(this);
     this.body.isCircle = true;
     this.body.width = 30;
-    scene.structureHitboxes.add(this);
-
-    this.destroyed = false;
-    this.HP = 800;
+    
+    // Add to scene groups
+    this.scene.structureHitboxes.add(this);
   }
 
   receiveDamage = (damage) => {
-    this.HP -= damage;
-    if (this.HP <= 0) {
-      this.destroyed = true;
+    this.state.missinghealth += damage;
+
+    // Destroy if health reaches 0
+    if (this.state.missinghealth >= this.stats.maxhealth) {
+      this.state.destroyed = true;
       this.destroy();
     }
   }
@@ -115,24 +141,48 @@ export class Inhibitor extends Phaser.GameObjects.Sprite {
 export class Nexus extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'tiles');
+    
+    // Set initial state
+    this.state = {
+      rendered: false,
+      destroyed: false,
+      missinghealth: 0,
+    };
+    
+    this.updateStats();
+    
+    // Render to scene
+    this.renderToScene();
+  }
+  
+  updateStats = () => {
+    this.stats = {
+      maxhealth: 3000,
+    }
+  }
+  
+  renderToScene = () => {
+    // Add to scene
+    this.scene.add.existing(this);
     this.play('blockTile');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
     this.scaleX = 2;
     this.scaleY = 2;
+    
+    // Add to physics
+    this.scene.physics.add.existing(this);
     this.body.isCircle = true;
-    this.body.width = 60;
-    scene.structureHitboxes.add(this);
-
-    this.destroyed = false;
-    this.HP = 3000;
-
+    this.body.width = 30;
+    
+    // Add to scene groups
+    this.scene.structureHitboxes.add(this);
   }
 
   receiveDamage = (damage) => {
-    this.HP -= damage;
-    if (this.HP <= 0) {
-      this.destroyed = true;
+    this.state.missinghealth += damage;
+
+    // Destroy if health reaches 0
+    if (this.state.missinghealth >= this.stats.maxhealth) {
+      this.state.destroyed = true;
       this.destroy();
     }
   }

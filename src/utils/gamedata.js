@@ -413,7 +413,7 @@ function _getEnemyGameData() {
         },
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 50,
         movespeed: 100,
@@ -421,7 +421,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -449,7 +451,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -477,7 +481,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -505,7 +511,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -533,7 +541,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -561,7 +571,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -589,7 +601,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -617,7 +631,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -645,7 +661,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -673,7 +691,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -701,7 +721,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -729,7 +751,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -757,7 +781,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -785,7 +811,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,
@@ -813,7 +841,9 @@ function _getEnemyGameData() {
         healthregen: 1,
         armor: 10,
         magicresist: 10,
+        tenacity: 0,
         xp: 20,
+        gold: 100,
       },
       scaling: {
         attackdamage: 1,

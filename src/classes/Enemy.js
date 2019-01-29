@@ -4,11 +4,11 @@ import Projectile from './Projectile.js';
 import { fuzzyLocation } from '../utils/helpers.js';
 
 export class Wave {
-  constructor(scene) {
+  constructor(scene, origin) {
     this.scene = scene;
 
     this.waypoints = [];
-    this.createWaypoints();
+    this.createWaypoints(origin);
 
     this.enemies = [];
     this.createEnemies();
@@ -28,27 +28,30 @@ export class Wave {
     }
   }
 
-  createWaypoints = () => {
+  createWaypoints = (origin) => {
+    const route = this.scene.routes[origin]
+    if (route) this.waypoints = route;
+    
     // Choose spawn location
-    let index = Math.floor(Math.random() * this.scene.spawnpoints.length)
-    let waypoint = this.scene.spawnpoints[index];
-
-    while (waypoint) {
-      this.waypoints.push(waypoint);
-
-      if (waypoint.end) {
-        break;
-      }
-
-      // Choose next Waypoint
-      index = Math.floor(Math.random() * waypoint.waypoints.length)
-      const temp = waypoint.waypoints[index];
-
-      // Avoid duplicates (todo: handle multi step loops)
-      if (this.waypoints.indexOf(temp) === -1) {
-        waypoint = temp;
-      }
-    }
+    // let index = Math.floor(Math.random() * this.scene.spawnpoints.length)
+    // let waypoint = this.scene.spawnpoints[index];
+    // 
+    // while (waypoint) {
+    //   this.waypoints.push(waypoint);
+    // 
+    //   if (waypoint.end) {
+    //     break;
+    //   }
+    // 
+    //   // Choose next Waypoint
+    //   index = Math.floor(Math.random() * waypoint.waypoints.length)
+    //   const temp = waypoint.waypoints[index];
+    // 
+    //   // Avoid duplicates (todo: handle multi step loops)
+    //   if (this.waypoints.indexOf(temp) === -1) {
+    //     waypoint = temp;
+    //   }
+    // }
   }
 };
 
@@ -196,10 +199,16 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     }
   }
 
-  attack = (target) => {
+  basicAttack = (target) => {
+    // Create Projectile onHit callback
+    const damage = this.stats.attackdamage;
+    const onHit = (projectile) => {
+      projectile.target.receiveDamage(damage);
+    }
+    
     this.state.attacking = true;
     if (this.state.attacktimer <= 0) {
-      const projectile = new Projectile(this, target);
+      const projectile = new Projectile(this, target, onHit);
       this.state.attacktimer = 1000 / this.stats.attackspeed;
     }
   }

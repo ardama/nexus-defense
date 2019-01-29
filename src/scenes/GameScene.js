@@ -53,12 +53,12 @@ export default class GameScene extends Phaser.Scene {
 
     this.physics.overlap(this.structureRanges, this.enemyHitboxes, (range, target) => {
       const structure = range.owner;
-      structure.attack(target);
+      structure.basicAttack(target);
     });
 
     this.physics.overlap(this.enemyRanges, this.structureHitboxes, (range, target) => {
       const enemy = range.owner;
-      enemy.attack(target);
+      enemy.basicAttack(target);
     });
   }
 
@@ -138,27 +138,42 @@ export default class GameScene extends Phaser.Scene {
 
   createWaypoints = () => {
     // Create Waypoints
-    const lane_start = new Waypoint(this, 900, 100);
-
+    const toplane_0 = new Waypoint(this, 850, 100);
     const toplane_1 = new Waypoint(this, 500, 100);
     const toplane_2 = new Waypoint(this, 100, 100);
+    
+    const midlane_0 = new Waypoint(this, 875, 125);
     const midlane_1 = new Waypoint(this, 500, 500);
+    
+    const botlane_0 = new Waypoint(this, 900, 150);
     const botlane_1 = new Waypoint(this, 900, 500);
     const botlane_2 = new Waypoint(this, 900, 900);
 
     const lane_end = new Waypoint(this, 100, 900, true);
 
     // Add routing options
-    lane_start.waypoints = [toplane_1, midlane_1, botlane_1];
-    toplane_1.waypoints = [toplane_2, midlane_1];
-    toplane_2.waypoints = [lane_end];
-    midlane_1.waypoints = [lane_end]
-    botlane_1.waypoints = [botlane_2, midlane_1];
-    botlane_2.waypoints = [lane_end];
+    // lane_start.waypoints = [toplane_1, midlane_1, botlane_1];
+    // toplane_1.waypoints = [toplane_2, midlane_1];
+    // toplane_2.waypoints = [lane_end];
+    // midlane_1.waypoints = [lane_end]
+    // botlane_1.waypoints = [botlane_2, midlane_1];
+    // botlane_2.waypoints = [lane_end];
+    
+    // Add Routes
+    this.routes = {
+      [Constants.Lane.Top]: [toplane_0, toplane_1, toplane_2, lane_end],
+      [Constants.Lane.Mid]: [midlane_0, midlane_1, lane_end],
+      [Constants.Lane.Bot]: [botlane_0, botlane_1, botlane_2, lane_end],
+    }
 
     // Add to scene data
-    this.waypoints.push(lane_start, toplane_1, toplane_2, midlane_1, botlane_1, botlane_2, lane_end);
-    this.spawnpoints.push(lane_start);
+    this.waypoints.push(
+      toplane_0, toplane_1, toplane_2,
+      midlane_0, midlane_1,
+      botlane_0, botlane_1, botlane_2,
+      lane_end,
+    );
+    this.spawnpoints.push(toplane_0, midlane_0, botlane_0);
   }
 
   createEnemies = () => {
@@ -197,7 +212,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createNextWave = () => {
-    const wave = new Wave(this);
-    this.waves.push(wave);
+    const waveTop = new Wave(this, Constants.Lane.Top);
+    const waveMid = new Wave(this, Constants.Lane.Mid);
+    const waveBot = new Wave(this, Constants.Lane.Bot);
+    this.waves.push(waveTop, waveMid, waveBot);
   }
 }
