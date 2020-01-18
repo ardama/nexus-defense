@@ -1,4 +1,4 @@
-import Constants from '../utils/constants.js';
+import C from '../utils/constants.js';
 
 class InGameMenuScene extends Phaser.Scene {
   constructor(test) {
@@ -19,8 +19,8 @@ class InGameMenuScene extends Phaser.Scene {
 
   initializeInputs = () => {
     const keylist = [
-      Constants.Keycodes.ESC,
-      Constants.Keycodes.R,
+      C.Keycodes.ESC,
+      C.Keycodes.R,
     ];
     
     this.keys = {};
@@ -28,8 +28,8 @@ class InGameMenuScene extends Phaser.Scene {
       this.keys[keycode] = this.input.keyboard.addKey(keycode);
     })
     
-    this.keys[Constants.Keycodes.ESC].on('down', this.resumeGame);
-    this.keys[Constants.Keycodes.R].on('down', this.restartGame);
+    this.keys[C.Keycodes.ESC].on('down', this.resumeGame);
+    this.keys[C.Keycodes.R].on('down', this.restartGame);
   };
 
   resumeGame = () => {

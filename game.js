@@ -1,4 +1,4 @@
-import Constants from './constants.js';
+import C from './constants.js';
 import { Path, Wave, Waypoint } from './classes.js';
 
 export const init = () => {
@@ -185,7 +185,7 @@ class Game {
 
   createEnemies = () => {
     this.waves = [];
-    this.nextWaveTime = Constants.Game.WaveTime;
+    this.nextWaveTime = C.Game.WaveTime;
   }
 
   updatePaths = () => {
@@ -208,7 +208,7 @@ class Game {
 
     if (this.nextWaveTime <= 0) {
       this.createWave();
-      this.nextWaveTime = Constants.Game.WaveTime;
+      this.nextWaveTime = C.Game.WaveTime;
     }
 
     for (const wave of this.waves) {

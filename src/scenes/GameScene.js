@@ -1,8 +1,9 @@
 import AnimatedTiles from 'phaser-animated-tiles/dist/AnimatedTiles.min.js';
 import Waypoint from '../classes/Waypoint.js';
-import Enemy, { Wave } from '../classes/Enemy.js';
+import Wave from '../classes/Wave.js';
 import { Tower, Inhibitor, Nexus } from '../classes/Structures.js';
-import Constants from '../utils/constants.js';
+import C from '../utils/constants.js';
+import D from '../utils/gamedata.js';
 import makeAnimations from '../utils/animations';
 
 
@@ -143,29 +144,21 @@ export default class GameScene extends Phaser.Scene {
     const toplane_0 = new Waypoint(this, 850, 100);
     const toplane_1 = new Waypoint(this, 500, 100);
     const toplane_2 = new Waypoint(this, 100, 100);
-    
+
     const midlane_0 = new Waypoint(this, 875, 125);
     const midlane_1 = new Waypoint(this, 500, 500);
-    
+
     const botlane_0 = new Waypoint(this, 900, 150);
     const botlane_1 = new Waypoint(this, 900, 500);
     const botlane_2 = new Waypoint(this, 900, 900);
 
-    const lane_end = new Waypoint(this, 100, 900, true);
+    const nexus = new Waypoint(this, 100, 900, true);
 
-    // Add routing options
-    // lane_start.waypoints = [toplane_1, midlane_1, botlane_1];
-    // toplane_1.waypoints = [toplane_2, midlane_1];
-    // toplane_2.waypoints = [lane_end];
-    // midlane_1.waypoints = [lane_end]
-    // botlane_1.waypoints = [botlane_2, midlane_1];
-    // botlane_2.waypoints = [lane_end];
-    
     // Add Routes
     this.routes = {
-      [Constants.Lane.Top]: [toplane_0, toplane_1, toplane_2, lane_end],
-      [Constants.Lane.Mid]: [midlane_0, midlane_1, lane_end],
-      [Constants.Lane.Bot]: [botlane_0, botlane_1, botlane_2, lane_end],
+      [C.Lane.Top]: [toplane_0, toplane_1, toplane_2, nexus],
+      [C.Lane.Mid]: [midlane_0, midlane_1, nexus],
+      [C.Lane.Bot]: [botlane_0, botlane_1, botlane_2, nexus],
     }
 
     // Add to scene data
@@ -173,18 +166,18 @@ export default class GameScene extends Phaser.Scene {
       toplane_0, toplane_1, toplane_2,
       midlane_0, midlane_1,
       botlane_0, botlane_1, botlane_2,
-      lane_end,
+      nexus,
     );
     this.spawnpoints.push(toplane_0, midlane_0, botlane_0);
   };
 
   createEnemies = () => {
-    this.nextWaveTime = Constants.Game.FirstWaveTime;
+    this.nextWaveTime = C.Game.FirstWaveTime;
   };
   
   initializeInputs = () => {
     const keylist = [
-      Constants.Keycodes.ESC
+      C.Keycodes.ESC
     ];
     
     this.keys = {};
@@ -192,7 +185,7 @@ export default class GameScene extends Phaser.Scene {
       this.keys[keycode] = this.input.keyboard.addKey(keycode);
     })
     
-    this.keys[Constants.Keycodes.ESC].on('down', () => {
+    this.keys[C.Keycodes.ESC].on('down', () => {
       this.scene.launch('InGameMenuScene');
       this.scene.pause();
     })
@@ -215,7 +208,7 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.nextWaveTime <= 0) {
       this.createNextWave();
-      this.nextWaveTime = Constants.Game.WaveTime;
+      this.nextWaveTime = C.Game.WaveTime;
     }
 
     for (const enemy of this.enemies.getChildren()) {
@@ -230,9 +223,9 @@ export default class GameScene extends Phaser.Scene {
   };
 
   createNextWave = () => {
-    const waveTop = new Wave(this, Constants.Lane.Top);
-    const waveMid = new Wave(this, Constants.Lane.Mid);
-    const waveBot = new Wave(this, Constants.Lane.Bot);
+    const waveTop = new Wave(this, C.Lane.Top, C.Wave.MinionBasic);
+    const waveMid = new Wave(this, C.Lane.Mid, C.Wave.MinionBasic);
+    const waveBot = new Wave(this, C.Lane.Bot, C.Wave.MinionBasic);
     this.waves.push(waveTop, waveMid, waveBot);
   };
 }

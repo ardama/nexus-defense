@@ -1,12 +1,12 @@
-import Constants from '../utils/constants.js';
-import GameData from '../utils/gamedata.js';
+import C from '../utils/constants.js';
+import D from '../utils/gamedata.js';
 import Projectile from './Projectile.js';
 
 export default class Champion extends Phaser.GameObjects.Sprite {
   constructor(scene, name, x, y, zone) {
-    const config = GameData.Champion[name];
+    const config = D.Champion[name];
     super(scene, x, y, data.appearance.key);
-    
+
     this.config = config;
 
     // Set initial state
@@ -17,7 +17,7 @@ export default class Champion extends Phaser.GameObjects.Sprite {
       level: 1,
       levelxp: 100,
     };
-    
+
     this.stats = this.updateStats();
 
     // Create attack range zone
@@ -30,9 +30,9 @@ export default class Champion extends Phaser.GameObjects.Sprite {
 
     // Render to scene
     this.renderToScene();
-    
+
   }
-  
+
   updateStats = () => {
     const { level } = this.state;
     const { base, scaling } = this.config;
