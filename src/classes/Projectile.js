@@ -9,7 +9,7 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
 
     // Set base stats
     this.stats = {
-      speed: 150,
+      speed: 300,
     };
 
     // Set initial state
@@ -52,7 +52,7 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
       return;
     }
 
-    this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.speed);
+    this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.stats.speed);
   }
 
   renderToScene = () => {

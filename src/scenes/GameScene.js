@@ -1,6 +1,7 @@
 import AnimatedTiles from 'phaser-animated-tiles/dist/AnimatedTiles.min.js';
 import Waypoint from '../classes/Waypoint.js';
 import Wave from '../classes/Wave.js';
+import Champion from '../classes/Champion.js';
 import { Tower, Inhibitor, Nexus } from '../classes/Structures.js';
 import C from '../utils/constants.js';
 import D from '../utils/gamedata.js';
@@ -50,19 +51,10 @@ export default class GameScene extends Phaser.Scene {
     this.graphics.clear();
 
     this.updateStructures(time, delta);
+    this.updateChampions(time, delta);
     this.updateWaypoints(time, delta);
     this.updateEnemies(time, delta);
     this.updateProjectiles(time, delta);
-
-    this.physics.overlap(this.structureRanges, this.enemyHitboxes, (range, target) => {
-      const structure = range.owner;
-      structure.basicAttack(target);
-    });
-
-    this.physics.overlap(this.enemyRanges, this.structureHitboxes, (range, target) => {
-      const enemy = range.owner;
-      enemy.basicAttack(target);
-    });
   }
 
   createGroups = () => {
@@ -78,6 +70,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Champion Groups
     this.champions = this.add.group();
+    this.championHitboxes = this.add.group();
     this.championRanges = this.add.group();
 
     // Other Groups
@@ -174,26 +167,37 @@ export default class GameScene extends Phaser.Scene {
   createEnemies = () => {
     this.nextWaveTime = C.Game.FirstWaveTime;
   };
-  
+
   initializeInputs = () => {
     const keylist = [
       C.Keycodes.ESC
     ];
-    
+
     this.keys = {};
     keylist.forEach((keycode) => {
       this.keys[keycode] = this.input.keyboard.addKey(keycode);
     })
-    
+
     this.keys[C.Keycodes.ESC].on('down', () => {
       this.scene.launch('InGameMenuScene');
       this.scene.pause();
+    })
+
+    this.input.on('pointerdown', (pointer) => {
+      const champion = new Champion(this, C.Champion.Vayne, pointer.x, pointer.y);
+      this.champions.add(champion)
     })
   };
 
   updateStructures = (time, delta) => {
     for (const structure of this.structures.getChildren()) {
       structure.update(time, delta);
+    }
+  };
+
+  updateChampions = (time, delta) => {
+    for (const champion of this.champions.getChildren()) {
+      champion.update(time, delta);
     }
   };
 

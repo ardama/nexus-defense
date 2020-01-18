@@ -9,9 +9,9 @@ const Constants = {
   },
   Wave: {
     Delay: {
-      Short: 100,
-      Medium: 200,
-      Long: 400,
+      Short: 50,
+      Medium: 100,
+      Long: 200,
     },
     MinionBasic: 'MinionBasic',
     MinionSiege: 'MinionSiege',

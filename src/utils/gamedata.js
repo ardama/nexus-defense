@@ -16,7 +16,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -44,7 +44,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -72,7 +72,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -100,7 +100,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -128,7 +128,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -156,7 +156,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -184,7 +184,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -212,7 +212,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -240,7 +240,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -268,7 +268,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -296,7 +296,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -324,7 +324,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -352,7 +352,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,
@@ -380,7 +380,7 @@ function _getChampionGameData() {
         key: '',
       },
       base: {
-        attackdamage: 1,
+        attackdamage: 10,
         attackspeed: 1,
         attackrange: 100,
         movespeed: 1,

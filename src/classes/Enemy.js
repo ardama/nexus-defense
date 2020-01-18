@@ -1,7 +1,7 @@
 import C from '../utils/constants.js';
 import D from '../utils/gamedata.js';
 import Projectile from './Projectile.js';
-import { fuzzyLocation } from '../utils/helpers.js';
+import { fuzzyLocation, randomInt } from '../utils/helpers.js';
 
 export default class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, name, waypoints, delay) {
@@ -24,6 +24,11 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     }
 
     this.updateStats();
+
+    // Set up healthbar
+    const healthbarCoordinates = this.getHealthbarCoordinates();
+    this.healthbar = new Phaser.GameObjects.Rectangle(this.scene, healthbarCoordinates.x, healthbarCoordinates.y, 30, 2, 0x333333);
+    this.healthbarFill = new Phaser.GameObjects.Rectangle(this.scene, healthbarCoordinates.x, healthbarCoordinates.y, 30, 2, 0xee4444);
 
     // Create attack range hitbox
     this.attackRange = new Phaser.GameObjects.Zone(
@@ -58,8 +63,11 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       this.renderToScene();
     }
 
-    // Stop moving attacking
-    if (this.state.attacking) {
+    // Check for target in range
+    const target = this.getBasicAttackTarget();
+
+    // Stop moving to attack
+    if (target) {
       this.body.velocity.x = 0;
       this.body.velocity.y = 0;
     } else {
@@ -76,6 +84,8 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
             // Destroy if we've reached the end
             this.state.destroyed = true;
             this.attackRange.destroy();
+            this.healthbar.destroy();
+            this.healthbarFill.destroy();
             this.destroy();
             return;
           }
@@ -88,12 +98,21 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     }
 
     // Update attack timer
-    if (this.state.attacktimer > 0) {
-      this.state.attacktimer -= delta;
+    this.state.attacktimer -= delta;
+
+    // Attempt to fire basic attack if available
+    if (target && this.state.attacktimer <= 0) {
+      this.basicAttack(target);
     }
 
-    // Reset attacking state
-    this.state.attacking = false;
+    // Update healthbar
+    const healthbarCoordinates = this.getHealthbarCoordinates();
+    this.healthbar.x = healthbarCoordinates.x;
+    this.healthbar.y = healthbarCoordinates.y;
+    this.healthbarFill.x = healthbarCoordinates.x;
+    this.healthbarFill.y = healthbarCoordinates.y;
+    this.healthbarFill.width = 30 * (1 - this.state.missinghealth / this.stats.maxhealth);
+
   }
 
   renderToScene = () => {
@@ -106,9 +125,13 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     this.body.isCircle = true;
     this.body.width = this.config.appearance.hitbox.width;
 
+    // Add healthbar
+    this.scene.add.existing(this.healthbar);
+    this.scene.add.existing(this.healthbarFill);
+
     // Add attack range to scene/physics
-    this.scene.add.existing(this.attackRange)
-    this.scene.physics.add.existing(this.attackRange)
+    this.scene.add.existing(this.attackRange);
+    this.scene.physics.add.existing(this.attackRange);
     this.attackRange.body.setCircle(this.stats.attackrange);
 
     // Add to scene groups
@@ -125,7 +148,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
 
     this.stats = {
       attackdamage: base.attackdamage + scaling.attackdamage * level,
-      attackrange: base.attackrange,
+      attackrange: base.attackrange + randomInt(15),
       attackspeed: base.attackspeed * (1 + scaling.attackspeed * level),
       movespeed: base.movespeed,
       criticalchance: 0,
@@ -143,8 +166,21 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
     if (this.state.missinghealth >= this.stats.maxhealth) {
       this.state.destroyed = true;
       this.attackRange.destroy();
+      this.healthbar.destroy();
+      this.healthbarFill.destroy();
       this.destroy();
     }
+  }
+
+  getBasicAttackTarget = () => {
+    // Get list of Enemies in range
+    const candidates = [];
+    this.scene.physics.overlap(this.attackRange, this.scene.structureHitboxes, (range, target) => {
+      candidates.push(target);
+    });
+
+    // Select first one
+    return candidates.length ? candidates[0] : null;
   }
 
   basicAttack = (target) => {
@@ -154,10 +190,15 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
       projectile.target.receiveDamage(damage);
     }
 
-    this.state.attacking = true;
-    if (this.state.attacktimer <= 0) {
-      const projectile = new Projectile(this, target, onHit);
-      this.state.attacktimer = 1000 / this.stats.attackspeed;
-    }
+    const projectile = new Projectile(this, target, onHit);
+    this.scene.projectiles.add(projectile);
+    this.state.attacktimer = 1000 / this.stats.attackspeed;
+  }
+
+  getHealthbarCoordinates = () => {
+    return {
+      x: this.x,
+      y: this.y - 15,
+    };
   }
 }
