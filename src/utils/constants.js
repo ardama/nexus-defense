@@ -17,7 +17,8 @@ const Constants = {
     Top: 1,
     Mid: 2,
     Bot: 3,
-  }
+  },
+  Keycodes: Phaser.Input.Keyboard.KeyCodes,
 };
 
 export default Constants;

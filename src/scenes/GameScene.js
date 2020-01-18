@@ -41,6 +41,8 @@ export default class GameScene extends Phaser.Scene {
     this.createStructures();
     this.createWaypoints();
     this.createEnemies();
+
+    this.initializeInputs();
   }
 
   update(time, delta) {
@@ -86,7 +88,7 @@ export default class GameScene extends Phaser.Scene {
     this.waypoints = [];
     this.spawnpoints = [];
     this.waves = [];
-  }
+  };
 
   createStructures = () => {
     // Top lane Towers
@@ -133,7 +135,7 @@ export default class GameScene extends Phaser.Scene {
     const nexus = new Nexus(this, 110, 890);
     this.structures.add(nexus);
     this.nexus = nexus;
-  }
+  };
 
 
   createWaypoints = () => {
@@ -174,23 +176,39 @@ export default class GameScene extends Phaser.Scene {
       lane_end,
     );
     this.spawnpoints.push(toplane_0, midlane_0, botlane_0);
-  }
+  };
 
   createEnemies = () => {
     this.nextWaveTime = Constants.Game.FirstWaveTime;
-  }
+  };
+  
+  initializeInputs = () => {
+    const keylist = [
+      Constants.Keycodes.ESC
+    ];
+    
+    this.keys = {};
+    keylist.forEach((keycode) => {
+      this.keys[keycode] = this.input.keyboard.addKey(keycode);
+    })
+    
+    this.keys[Constants.Keycodes.ESC].on('down', () => {
+      this.scene.launch('InGameMenuScene');
+      this.scene.pause();
+    })
+  };
 
   updateStructures = (time, delta) => {
     for (const structure of this.structures.getChildren()) {
       structure.update(time, delta);
     }
-  }
+  };
 
   updateWaypoints = (time, delta) => {
     for (const waypoint of this.waypoints) {
       waypoint.update(time, delta);
     }
-  }
+  };
 
   updateEnemies = (time, delta) => {
     this.nextWaveTime -= delta;
@@ -203,18 +221,18 @@ export default class GameScene extends Phaser.Scene {
     for (const enemy of this.enemies.getChildren()) {
       enemy.update(time, delta);
     }
-  }
+  };
 
   updateProjectiles = (time, delta) => {
     for (const projectile of this.projectiles.getChildren()) {
       projectile.update(time, delta);
     }
-  }
+  };
 
   createNextWave = () => {
     const waveTop = new Wave(this, Constants.Lane.Top);
     const waveMid = new Wave(this, Constants.Lane.Mid);
     const waveBot = new Wave(this, Constants.Lane.Bot);
     this.waves.push(waveTop, waveMid, waveBot);
-  }
+  };
 }
