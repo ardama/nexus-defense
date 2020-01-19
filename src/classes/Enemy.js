@@ -1,5 +1,5 @@
 import C from '../utils/constants.js';
-import D from '../utils/gamedata.js';
+import D from '../data/GameData.js';
 import Projectile from './Projectile.js';
 import { fuzzyLocation, randomInt } from '../utils/helpers.js';
 
@@ -118,7 +118,7 @@ export default class Enemy extends Phaser.GameObjects.Sprite {
   renderToScene = () => {
     // Add to scene
     this.scene.add.existing(this);
-    this.play('broken');
+    this.play('goomba');
 
     // Add to physics
     this.scene.physics.add.existing(this);

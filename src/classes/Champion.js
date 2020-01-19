@@ -1,5 +1,5 @@
 import C from '../utils/constants.js';
-import D from '../utils/gamedata.js';
+import D from '../data/GameData.js';
 import Projectile from './Projectile.js';
 
 export default class Champion extends Phaser.GameObjects.Sprite {

@@ -4,7 +4,7 @@ import Wave from '../classes/Wave.js';
 import Champion from '../classes/Champion.js';
 import { Tower, Inhibitor, Nexus } from '../classes/Structures.js';
 import C from '../utils/constants.js';
-import D from '../utils/gamedata.js';
+import D from '../data/GameData.js';
 import makeAnimations from '../utils/animations';
 
 

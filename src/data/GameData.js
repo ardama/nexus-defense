@@ -1,4 +1,4 @@
-import C from './constants.js';
+import C from '../utils/constants.js';
 
 const GameData = {
   Champion: _getChampionGameData(),
@@ -321,7 +321,7 @@ function _getChampionGameData() {
 
     [C.Champion.Vayne]: {
       appearance: {
-        key: '',
+        key: 'broken',
       },
       base: {
         attackdamage: 10,

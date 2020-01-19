@@ -1,6 +1,6 @@
 export default class Projectile extends Phaser.GameObjects.Sprite {
   constructor(owner, target, onHit) {
-    super(owner.scene, owner.x, owner.y, 'mario-sprites');
+    super(owner.scene, owner.x, owner.y, 'tiles');
 
     // Save owner, target
     this.owner = owner;
@@ -58,6 +58,7 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
   renderToScene = () => {
     // Add to scene
     this.scene.add.existing(this);
+    this.play('fireFly');
 
     // Add to physics
     this.scene.physics.add.existing(this);

@@ -1,6 +1,6 @@
 import Enemy from './Enemy.js';
 import C from '../utils/constants.js';
-import D from '../utils/gamedata.js';
+import D from '../data/GameData.js';
 
 export default class Wave {
   constructor(scene, origin, type) {
