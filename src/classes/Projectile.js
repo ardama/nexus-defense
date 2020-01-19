@@ -43,8 +43,8 @@ export default class Projectile extends Phaser.GameObjects.Sprite {
       const overlap = this.scene.physics.overlap(this, this.target, this.handleTargetHit);
       if (overlap) return;
     } else if (
-      Math.abs(this.destination.x - this.x) <= 3 &&
-      Math.abs(this.destination.y - this.y) <= 3
+      Math.abs(this.destination.x - this.x) <= 10 &&
+      Math.abs(this.destination.y - this.y) <= 10
     ) {
       // If no target, check if Projectile reached last set destination
       this.state.destroyed = true,

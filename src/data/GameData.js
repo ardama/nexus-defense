@@ -321,7 +321,7 @@ function _getChampionGameData() {
 
     [C.Champion.Vayne]: {
       appearance: {
-        key: 'broken',
+        key: 'tiles',
       },
       base: {
         attackdamage: 10,
@@ -862,14 +862,112 @@ function _getEnemyGameData() {
 
 function _getStructureGameData() {
   return {
-
-
+    [C.Structure.Tower]: {
+      appearance: {
+        key: 'tiles',
+        hitbox: 30,
+        animation: 'brickTile',
+      },
+      base: {
+        attackdamage: 40,
+        attackspeed: 3.5,
+        attackrange: 100,
+        movespeed: 0,
+        maxhealth: 1000,
+        healthregen: 0,
+        armor: 10,
+        magicresist: 10,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+      scaling: {
+        attackdamage: 0,
+        attackspeed: 0,
+        attackrange: 0,
+        movespeed: 0,
+        maxhealth: 0,
+        healthregen: 0,
+        armor: 0,
+        magicresist: 0,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+    },
+    [C.Structure.Inhibitor]: {
+      appearance: {
+        key: 'tiles',
+        hitbox: 30,
+        animation: 'broken',
+      },
+      base: {
+        attackdamage: 0,
+        attackspeed: 0,
+        attackrange: 0,
+        movespeed: 0,
+        maxhealth: 3000,
+        healthregen: 0,
+        armor: 10,
+        magicresist: 10,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+      scaling: {
+        attackdamage: 0,
+        attackspeed: 0,
+        attackrange: 0,
+        movespeed: 0,
+        maxhealth: 0,
+        healthregen: 0,
+        armor: 0,
+        magicresist: 0,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+    },
+    [C.Structure.Nexus]: {
+      appearance: {
+        key: 'tiles',
+        hitbox: 60,
+        animation: 'blockTile',
+        scaleX: 2,
+        scaleY: 2,
+      },
+      base: {
+        attackdamage: 0,
+        attackspeed: 0,
+        attackrange: 0,
+        movespeed: 0,
+        maxhealth: 4000,
+        healthregen: 0,
+        armor: 10,
+        magicresist: 10,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+      scaling: {
+        attackdamage: 0,
+        attackspeed: 0,
+        attackrange: 0,
+        movespeed: 0,
+        maxhealth: 0,
+        healthregen: 0,
+        armor: 0,
+        magicresist: 0,
+        tenacity: 0,
+        xp: 0,
+        gold: 0,
+      },
+    },
   };
 }
 
 function _getItemGameData() {
   return {
-
 
   };
 }

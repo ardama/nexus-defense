@@ -29,6 +29,11 @@ const Constants = {
     Mid: 2,
     Bot: 3,
   },
+  Structure: {
+    Tower: 'Tower',
+    Inhibitor: 'Inhibitor',
+    Nexus: 'Nexus',
+  },
   Enemy: {
     CasterMinion: 'CasterMinion',
     MeleeMinion: 'MeleeMinion',

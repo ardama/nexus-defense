@@ -2,7 +2,7 @@ import AnimatedTiles from 'phaser-animated-tiles/dist/AnimatedTiles.min.js';
 import Waypoint from '../classes/Waypoint.js';
 import Wave from '../classes/Wave.js';
 import Champion from '../classes/Champion.js';
-import { Tower, Inhibitor, Nexus } from '../classes/Structures.js';
+import Structure from '../classes/Structure.js';
 import C from '../utils/constants.js';
 import D from '../data/GameData.js';
 import makeAnimations from '../utils/animations';
@@ -86,10 +86,10 @@ export default class GameScene extends Phaser.Scene {
 
   createStructures = () => {
     // Top lane Towers
-    const topOuter =  new Tower(this, 80, 240);
-    const topInner =  new Tower(this, 120, 500);
-    const topInhib =  new Tower(this, 100, 720);
-    const topNexus =  new Tower(this, 120, 840);
+    const topOuter = new Structure(this, C.Structure.Tower, 80, 240);
+    const topInner = new Structure(this, C.Structure.Tower, 120, 500);
+    const topInhib = new Structure(this, C.Structure.Tower, 100, 720);
+    const topNexus = new Structure(this, C.Structure.Tower, 120, 840);
     this.structures.add(topOuter);
     this.structures.add(topInner);
     this.structures.add(topInhib);
@@ -97,19 +97,19 @@ export default class GameScene extends Phaser.Scene {
     this.towers.top.push(topOuter, topInner, topInhib, topNexus);
 
     // Mid lane Towers
-    const midOuter = new Tower(this, 420, 540);
-    const midInner = new Tower(this, 360, 680);
-    const midInhib = new Tower(this, 240, 760);
+    const midOuter = new Structure(this, C.Structure.Tower, 420, 540);
+    const midInner = new Structure(this, C.Structure.Tower, 360, 680);
+    const midInhib = new Structure(this, C.Structure.Tower, 240, 760);
     this.structures.add(midOuter);
     this.structures.add(midInner);
     this.structures.add(midInhib);
     this.towers.mid.push(midOuter, midInner, midInhib);
 
     // Bot lane Towers
-    const botOuter = new Tower(this, 760, 920);
-    const botInner = new Tower(this, 500, 880);
-    const botInhib = new Tower(this, 280, 900);
-    const botNexus = new Tower(this, 160, 880);
+    const botOuter = new Structure(this, C.Structure.Tower, 760, 920);
+    const botInner = new Structure(this, C.Structure.Tower, 500, 880);
+    const botInhib = new Structure(this, C.Structure.Tower, 280, 900);
+    const botNexus = new Structure(this, C.Structure.Tower, 160, 880);
     this.structures.add(botOuter);
     this.structures.add(botInner);
     this.structures.add(botInhib);
@@ -117,16 +117,16 @@ export default class GameScene extends Phaser.Scene {
     this.towers.bot.push(botOuter, botInner, botInhib, botNexus);
 
     // Inhibitors
-    const topInhibitor = new Inhibitor(this, 100, 760);
-    const midInhibitor = new Inhibitor(this, 210, 790);
-    const botInhibitor = new Inhibitor(this, 240, 900);
+    const topInhibitor = new Structure(this, C.Structure.Inhibitor, 100, 760);
+    const midInhibitor = new Structure(this, C.Structure.Inhibitor, 210, 790);
+    const botInhibitor = new Structure(this, C.Structure.Inhibitor, 240, 900);
     this.structures.add(topInhibitor);
     this.structures.add(midInhibitor);
     this.structures.add(botInhibitor);
     this.inhibitors = { top: topInhibitor, mid: midInhibitor, bot: botInhibitor };
 
     // Nexus
-    const nexus = new Nexus(this, 110, 890);
+    const nexus = new Structure(this, C.Structure.Nexus, 110, 890);
     this.structures.add(nexus);
     this.nexus = nexus;
   };

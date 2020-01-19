@@ -1,7 +1,7 @@
-
+import Projectile from './Projectile.js';
 
 export default class Unit extends Phaser.GameObjects.Sprite {
-  constructor(scene, name, x, y, unitData, typeData) {
+  constructor(scene, x, y, unitData, typeData) {
     super(scene, x, y, unitData.appearance.key);
 
     this.unitData = unitData || {};
@@ -10,32 +10,34 @@ export default class Unit extends Phaser.GameObjects.Sprite {
     this.state = {};
     this.setInitialState();
     this.updateStats();
+    this.initializeHealthbar();
 
     // Create attack range zone
-    this.attackRange = new Phaser.GameObjects.Zone(
-      scene, x, y,
-      this.stats.attackrange * 2,
-      this.stats.attackrange * 2,
-    );
-    this.attackRange.owner = this;
+    if (this.stats.attackrange) {
+      this.attackRange = new Phaser.GameObjects.Zone(
+        scene, x, y,
+        this.stats.attackrange * 2,
+        this.stats.attackrange * 2,
+      );
+      this.attackRange.owner = this;
+    }
+  };
 
-    // Render to scene
-    this.renderToScene();
-  }
-
-  setInitialState = () => {
+  setInitialState() {
       this.state.rendered = false;
       this.state.destroyed = false;
 
       this.state.level = 1;
+      
+      this.state.missinghealth = 0;
 
       this.state.cooldowns = {
-        attack: 0;
+        attack: 0,
       };
       this.state.buffs = [];
-  }
+  };
 
-  updateStats = () => {
+  updateStats() {
     const { level } = this.state;
     const { base = {}, scaling = {} } = this.unitData;
 
@@ -50,45 +52,121 @@ export default class Unit extends Phaser.GameObjects.Sprite {
       armor: base.armor + scaling.armor * level,
       magicresist: base.magicresist + scaling.magicresist * level,
     };
+  };
+  
+  initializeHealthbar() {
+    const healthbarCoordinates = this.getHealthbarCoordinates();
+    const { healthbarColor } = this.typeData;
+    
+    this.healthbar = new Phaser.GameObjects.Rectangle(
+      this.scene, healthbarCoordinates.x, healthbarCoordinates.y, 30, 2, 0x333333,
+    );
+    
+    this.healthbarFill = new Phaser.GameObjects.Rectangle(
+      this.scene, healthbarCoordinates.x, healthbarCoordinates.y, 30, 2, healthbarColor,
+    );
+  };
+  
+  updateHealthbar() {
+    // Update healthbar
+    const healthbarCoordinates = this.getHealthbarCoordinates();
+    this.healthbar.x = healthbarCoordinates.x;
+    this.healthbar.y = healthbarCoordinates.y;
+    this.healthbarFill.x = healthbarCoordinates.x;
+    this.healthbarFill.y = healthbarCoordinates.y;
+    this.healthbarFill.width = 30 * (1 - this.state.missinghealth / this.stats.maxhealth);
   }
 
-  renderToScene = () => {
+  update(time, delta) {
+  };
+  
+  renderToScene() {
+    const {
+      appearance: {
+        hitbox,
+        scaleX = 1,
+        scaleY = 1,
+        animation = 'goomba',
+      }
+    } = this.unitData;
+    const { type } = this.typeData;
+    
     // Add to scene
     this.scene.add.existing(this);
-    this.play('goomba');
+    this.play(animation);
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
 
-    // Add to physics
-    this.scene.physics.add.existing(this);
-    this.body.isCircle = true;
-    this.body.width = this.config.appearance.hitbox.width;
+    // Add self to physics
+    if (hitbox) {
+      this.scene.physics.add.existing(this);
+      this.body.isCircle = true;
+      this.body.width = hitbox.width;
+      this.scene[`${type}Hitboxes`].add(this);
+    }
+  
+    // Add attack range to scene/physics
+    if (this.attackRange) {
+      this.scene.add.existing(this.attackRange);
+      this.scene.physics.add.existing(this.attackRange);
+      this.attackRange.body.setCircle(this.stats.attackrange);
+      this.scene[`${type}Ranges`].add(this.attackRange);
+    }
 
     // Add healthbar
     this.scene.add.existing(this.healthbar);
     this.scene.add.existing(this.healthbarFill);
 
-    // Add attack range to scene/physics
-    this.scene.add.existing(this.attackRange);
-    this.scene.physics.add.existing(this.attackRange);
-    this.attackRange.body.setCircle(this.stats.attackrange);
-
-    // Add to scene groups
-    this.scene.enemyHitboxes.add(this);
-    this.scene.enemyRanges.add(this.attackRange);
-
     // Update rendered state
     this.state.rendered = true;
+  };
+  
+  getHealthbarCoordinates() {
+    return {
+      x: this.x,
+      y: this.y - 15,
+    };
+  };
+  
+  getBasicAttackTarget() {
+    // Get list of Enemies in range
+    const candidates = [];
+    (this.typeData.targetTypes || []).forEach((type) => {
+      this.scene.physics.overlap(this.attackRange, this.scene[`${type}Hitboxes`], (range, target) => {
+        candidates.push(target);
+      });
+    })
+
+    // Select first one
+    return candidates.length ? candidates[0] : null;
   }
 
-  update = (time, delta) => {
-    // Update attack timer
-    this.state.attacktimer -= delta;
+  basicAttack(target) {
+    // Create Projectile onHit callback
+    const damage = this.stats.attackdamage;
+    const onHit = (projectile) => {
+      projectile.target.receiveDamage(damage);
+    }
 
-    // Attempt to fire basic attack if available
-    if (this.state.attacktimer <= 0) {
-      const target = this.getBasicAttackTarget();
-      if (target) {
-        this.basicAttack(target);
-      }
+    const projectile = new Projectile(this, target, onHit);
+    this.scene.projectiles.add(projectile);
+    this.state.cooldowns.attack = 1000 / this.stats.attackspeed;
+  };
+  
+  receiveDamage(damage) {
+    this.state.missinghealth += damage;
+
+    // Destroy if health reaches 0
+    if (this.state.missinghealth >= this.stats.maxhealth) {
+      this.destroy();
     }
   }
-}
+  
+  destroy() {
+    this.state.destroyed = true;
+    if (this.attackRange) { this.attackRange.destroy(); }
+    if (this.healthbar) { this.healthbar.destroy(); }
+    if (this.healthbarFill) { this.healthbarFill.destroy(); }
+    super.destroy();
+  }
+};
